@@ -7,4 +7,5 @@ import java.util.UUID;
 
 @Repository
 public interface RelatorioFinalRepository extends JpaRepository<RelatorioFinal, UUID> {
+    // Já tem CRUD completo por padrão
 }

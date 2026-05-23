@@ -8,7 +8,7 @@ import java.util.UUID;
 public class PlanoTrabalho {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // estratégia mais segura
     private UUID id;
 
     @Column(nullable = false)
@@ -24,19 +24,19 @@ public class PlanoTrabalho {
     @Column(nullable = false)
     private String arquivoPlano;
 
-    // O parecer começa nulo (não tem nullable = false), pois só é preenchido na estória PS.02
+    // Parecer começa nulo, é preenchido depois
     @Column(columnDefinition = "TEXT")
     private String parecer;
 
-    @ManyToOne
-    @JoinColumn(name = "professor_supervisor_id", nullable = false)
+    @ManyToOne // vários planos -> 1 professor supervisor
+    @JoinColumn(name = "professor_supervisor_id", nullable = false) // coluna extra com id do professor
     private Usuario professorSupervisor;
 
-    @OneToOne
-    @JoinColumn(name = "inscricao_id", nullable = false)
+    @OneToOne // 1 inscrição/aluno -> 1 plano
+    @JoinColumn(name = "inscricao_id", nullable = false) // coluna extra com id da inscrição
     private Inscricao inscricao;
  
-    // O Parecer fica de fora do construtor principal pois é avaliado depois.
+    // Parecer fica de fora do construtor principal, é inserido depois
     public PlanoTrabalho(UUID id, String codigoDisciplina, String nomeDisciplina, String cursoDisciplina, 
                          String arquivoPlano, Usuario professorSupervisor, Inscricao inscricao) {
         this.id = id;
@@ -48,6 +48,7 @@ public class PlanoTrabalho {
         this.inscricao = inscricao;
     }
 
+    // Construtor necessário para o Hibernate
     protected PlanoTrabalho() {
     }
 

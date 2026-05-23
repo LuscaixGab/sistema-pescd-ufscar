@@ -8,7 +8,7 @@ import java.util.UUID;
 public class DocumentacaoAula {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // estratégia mais segura
     private UUID id;
 
     @Column(nullable = false)
@@ -24,9 +24,9 @@ public class DocumentacaoAula {
     private Integer cargaHoraria; // em horas
 
     @Column(nullable = false)
-    private String arquivoDocumentacao; // Caminho do PDF
+    private String arquivoDocumentacao; // caminho do PDF
 
-    // Dados preenchidos depois pelo Professor Responsável (PR.02)
+    // Dados preenchidos depois
     @Column(columnDefinition = "TEXT")
     private String parecer;
 
@@ -36,12 +36,11 @@ public class DocumentacaoAula {
     @Column(length = 1)
     private String nota; // Pode ser A, B, C, D ou E
 
-    @OneToOne
-    @JoinColumn(name = "inscricao_id", nullable = false)
+    @OneToOne // 1 documentação -> 1 inscrição
+    @JoinColumn(name = "inscricao_id", nullable = false) // coluna extra com id da inscrição
     private Inscricao inscricao;
 
-    // Construtor com os dados do envio (AL.03).
-    // Os campos do professor ficam de fora pois começam nulos.
+    // Campos do professor ficam de fora, são preenchidos depois
     public DocumentacaoAula(UUID id, String nomeInstituicao, String nomeDisciplina, String cursoDisciplina,
                             Integer cargaHoraria, String arquivoDocumentacao, Inscricao inscricao) {
         this.id = id;
@@ -53,6 +52,7 @@ public class DocumentacaoAula {
         this.inscricao = inscricao;
     }
 
+    // Construtor necessário para o Hibernate
     protected DocumentacaoAula() {
     }
 

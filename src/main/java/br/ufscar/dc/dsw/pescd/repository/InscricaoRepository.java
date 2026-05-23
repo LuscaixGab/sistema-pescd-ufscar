@@ -6,4 +6,5 @@ import br.ufscar.dc.dsw.pescd.model.Inscricao;
 
 @Repository
 public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
+    // Já tem CRUD completo por padrão
 }

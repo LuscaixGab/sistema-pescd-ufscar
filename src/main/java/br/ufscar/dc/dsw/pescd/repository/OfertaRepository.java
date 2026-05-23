@@ -6,4 +6,5 @@ import br.ufscar.dc.dsw.pescd.model.Oferta;
 
 @Repository
 public interface OfertaRepository extends JpaRepository<Oferta, Long> {
+    // Já tem CRUD completo por padrão
 }

@@ -8,7 +8,7 @@ import java.util.UUID;
 public class RelatorioFinal {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // estratégia mais segura
     private UUID id;
 
     @Column(nullable = false)
@@ -17,7 +17,7 @@ public class RelatorioFinal {
     @Column(nullable = false)
     private String arquivoRelatorio; // Caminho do PDF do relatório
 
-    // Dados da avaliação do Professor Supervisor (PS.03)
+    // Dados da avaliação do professor
     @Column(columnDefinition = "TEXT")
     private String parecerSupervisor;
 
@@ -27,7 +27,6 @@ public class RelatorioFinal {
     @Column(length = 1)
     private String sugestaoNotaSupervisor; // A, B, C, D ou E
 
-    // Dados da homologação do Professor Responsável (PR.01)
     @Column(columnDefinition = "TEXT")
     private String parecerResponsavel;
 
@@ -37,11 +36,11 @@ public class RelatorioFinal {
     @Column(length = 1)
     private String notaFinal; // A, B, C, D ou E
 
-    @OneToOne
-    @JoinColumn(name = "inscricao_id", nullable = false)
+    @OneToOne // 1 relatório -> 1 inscrição
+    @JoinColumn(name = "inscricao_id", nullable = false) // coluna extra com id da inscrição
     private Inscricao inscricao;
 
-    // Construtor apenas com os dados iniciais do envio do Aluno (AL.04)
+    // Construtor apenas com os dados iniciais do envio do aluno
     public RelatorioFinal(UUID id, Integer frequenciaAluno, String arquivoRelatorio, Inscricao inscricao) {
         this.id = id;
         this.frequenciaAluno = frequenciaAluno;
@@ -49,6 +48,7 @@ public class RelatorioFinal {
         this.inscricao = inscricao;
     }
 
+    // Construtor necessário para o Hibernate
     protected RelatorioFinal() {
     }
 

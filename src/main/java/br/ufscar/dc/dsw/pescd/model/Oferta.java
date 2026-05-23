@@ -9,7 +9,7 @@ import java.util.UUID;
 public class Oferta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // estratégia mais segura
     private UUID id;
 
     @Column
@@ -24,11 +24,10 @@ public class Oferta {
     @Column(nullable = false)
     private LocalDate dataFim;
 
-    @ManyToOne
-    @JoinColumn(name = "professor_responsavel_id", nullable = false)
+    @ManyToOne // várias ofertas -> 1 professor
+    @JoinColumn(name = "professor_responsavel_id", nullable = false) // coluna extra com id do professor
     private Usuario professorResponsavel;
 
-    // Construtor com atributos atualizado
     public Oferta(UUID id, String nomeOferta, String semestre, LocalDate dataInicio, LocalDate dataFim,
             Usuario professorResponsavel) {
         this.id = id;

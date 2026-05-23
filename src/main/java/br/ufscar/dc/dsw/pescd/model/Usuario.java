@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // estratégia mais segura
     private UUID id;
 
     @Column(nullable = false)
@@ -28,6 +28,7 @@ public class Usuario {
     @Column(nullable = false)
     private Perfil perfil;
 
+    // Construtor necessário para o Hibernate
     public Usuario() {
     }
 

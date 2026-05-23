@@ -8,15 +8,15 @@ import java.util.UUID;
 public class Inscricao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // estratégia mais segura
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "aluno_id", nullable = false)
+    @ManyToOne // várias inscrições -> 1 aluno
+    @JoinColumn(name = "aluno_id", nullable = false) // coluna extra com id do aluno
     private Usuario aluno;
 
-    @ManyToOne
-    @JoinColumn(name = "oferta_id", nullable = false)
+    @ManyToOne // várias inscrições -> 1 oferta
+    @JoinColumn(name = "oferta_id", nullable = false) // coluna extra com id da oferta
     private Oferta oferta;
 
     @Enumerated(EnumType.STRING)
@@ -30,6 +30,7 @@ public class Inscricao {
         this.status = status;
     }
 
+    // Construtor necessário para o Hibernate
     protected Inscricao() {
     }
 

@@ -7,4 +7,5 @@ import java.util.UUID;
 
 @Repository
 public interface PlanoTrabalhoRepository extends JpaRepository<PlanoTrabalho, UUID> {
+    // Já tem CRUD completo por padrão
 }

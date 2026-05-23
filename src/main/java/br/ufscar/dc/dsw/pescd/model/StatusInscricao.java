@@ -1,4 +1,4 @@
-package br.ufscar.dc.dsw.pescd.model; // Ajuste o 'pescd' para o nome exato do seu projeto se precisar
+package br.ufscar.dc.dsw.pescd.model;
 
 public enum StatusInscricao {
     NAO_ENVIADO,
