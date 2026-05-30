@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Bem-vindo</p>
+                <h1 th:text="${usuario.nomeCompleto}">Usuário</h1>
+                <p>
+                    Perfil:
+                    <strong th:text="${usuario.perfil}">PERFIL</strong>
+                </p>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button class="button-link secondary" type="submit">Sair</button>
+            </form>
+        </header>
+
+        <div class="notice success" th:if="${usuario.perfil.name() == 'SECRETARIO'}">
+            Você está autenticado como secretário e pode iniciar o workflow criando uma oferta.
+        </div>
+
+        <div class="notice" th:if="${usuario.perfil.name() != 'SECRETARIO'}">
+            Seu perfil está autenticado. As funcionalidades específicas desse perfil virão nas próximas histórias.
+        </div>
+
+        <div class="actions" th:if="${usuario.perfil.name() == 'SECRETARIO'}">
+            <a class="button-link" th:href="@{/ofertas/nova}">Criar oferta</a>
+           <a class="button-link" th:href="@{/alunos/novo}">Cadastrar aluno</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

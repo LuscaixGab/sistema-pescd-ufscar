@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ofertas | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Workflow</p>
+                <h1>Ofertas cadastradas</h1>
+                <p>Gerencie as ofertas iniciadas pelo secretário.</p>
+            </div>
+            <a class="button-link" th:href="@{/ofertas/nova}">Nova oferta</a>
+        </header>
+
+        <div th:if="${mensagemSucesso}" class="notice success" th:text="${mensagemSucesso}"></div>
+
+        <div class="table-wrap" th:if="${#lists.isEmpty(ofertas)}">
+            <p class="empty-state">Nenhuma oferta cadastrada ainda.</p>
+        </div>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(ofertas)}">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Semestre</th>
+                    <th>Início</th>
+                    <th>Fim</th>
+                    <th>Professor</th>
+                    <th>Criada em</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="oferta : ${ofertas}">
+                    <td th:text="${oferta.nomeOferta}"></td>
+                    <td th:text="${oferta.semestre}"></td>
+                    <td th:text="${#temporals.format(oferta.dataInicio, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(oferta.dataFim, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${oferta.professorResponsavel.nomeCompleto}"></td>
+                    <td th:text="${#temporals.format(oferta.dataCriacao, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td><a> Editar </a></td>
+                    <td><a>Excluir </a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
