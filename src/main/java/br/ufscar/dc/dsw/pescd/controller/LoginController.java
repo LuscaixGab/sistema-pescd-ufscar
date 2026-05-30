@@ -1,0 +1,41 @@
+package br.ufscar.dc.dsw.pescd.controller;
+
+import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+@Controller
+public class LoginController {
+
+    @GetMapping("/")
+    public String redirecionarRaiz() {
+        return "redirect:/login";
+    }
+
+    @GetMapping("/login")
+    public String exibirLogin(
+            @RequestParam(value = "erro", required = false) String erro,
+            @RequestParam(value = "logout", required = false) String logout,
+            @AuthenticationPrincipal UsuarioUserDetails usuarioLogado,
+            Model model) {
+        if (usuarioLogado != null) {
+            if (usuarioLogado.getUsuario().getPerfil() == br.ufscar.dc.dsw.pescd.model.Perfil.SECRETARIO) {
+                return "redirect:/ofertas";
+            }
+            return "redirect:/painel";
+        }
+
+        if (erro != null) {
+            model.addAttribute("mensagemErro", "Usuário ou senha inválidos.");
+        }
+
+        if (logout != null) {
+            model.addAttribute("mensagemLogout", "Você saiu do sistema.");
+        }
+
+        return "telaLogin";
+    }
+}
