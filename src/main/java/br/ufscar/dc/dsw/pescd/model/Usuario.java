@@ -1,5 +1,7 @@
 package br.ufscar.dc.dsw.pescd.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -22,6 +24,7 @@ public class Usuario {
     private String nomeUsuario;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String senha;
 
     @Enumerated(EnumType.STRING)

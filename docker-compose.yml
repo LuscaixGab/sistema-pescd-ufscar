@@ -8,8 +8,6 @@ services:
       MYSQL_USER: pescd_user
       MYSQL_PASSWORD: pescd_pass
       MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -18,6 +16,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+    ports:
+      - "3307:3306"
 
 volumes:
   mysql_data:

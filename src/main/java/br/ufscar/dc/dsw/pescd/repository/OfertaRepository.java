@@ -1,10 +1,14 @@
 package br.ufscar.dc.dsw.pescd.repository;
 
+import br.ufscar.dc.dsw.pescd.model.Oferta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import br.ufscar.dc.dsw.pescd.model.Oferta;
+
+import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface OfertaRepository extends JpaRepository<Oferta, Long> {
-    // Já tem CRUD completo por padrão
+public interface OfertaRepository extends JpaRepository<Oferta, UUID> {
+
+    List<Oferta> findAllByOrderByDataCriacaoDesc();
 }
