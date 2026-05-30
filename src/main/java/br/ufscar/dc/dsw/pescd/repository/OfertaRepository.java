@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface OfertaRepository extends JpaRepository<Oferta, UUID> {
+    // Já tem CRUD completo por padrão
 
     List<Oferta> findAllByOrderByDataCriacaoDesc();
 }

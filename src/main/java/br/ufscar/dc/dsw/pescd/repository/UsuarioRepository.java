@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
+    // Já tem CRUD completo por padrão
 
     Optional<Usuario> findByEmail(String email);
 
