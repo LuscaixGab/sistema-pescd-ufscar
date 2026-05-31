@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<!-- Thymeleaf -->
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Minhas Ofertas - PESCD</title>
     
-    <!-- CSS para tabela manter formatação visual -->
     <style>
         body { font-family: sans-serif; margin: 40px; background-color: #f4f4f9; }
         h2 { color: #333; }
@@ -24,7 +22,6 @@
 
     <table>
         
-        <!-- THEAD: Cabeçalho da tabela com os títulos das colunas -->
         <thead>
             <tr>
                 <th>Oferta / Disciplina</th>
@@ -37,36 +34,30 @@
             </tr>
         </thead>
         
-        <!-- TBODY: Corpo da tabela onde os dados dinâmicos aparecem -->
         <tbody>
             
-            <!-- th:each: Laço de repetição que cria uma linha (tr) para cada inscrição da lista -->
             <tr th:each="inscricao : ${inscricoes}">
                 
-                <!-- th:text: Substitui o texto falso pelo nome e semestre diretos do banco -->
                 <td th:text="${inscricao.oferta.nomeOferta}">Nome da Oferta</td>
                 <td th:text="${inscricao.oferta.semestre}">2026/1</td>
                 
-                <!-- #temporals.format: Converte a data do Java para o padrao brasileiro -->
                 <td th:text="${#temporals.format(inscricao.oferta.dataInicio, 'dd/MM/yyyy')}">01/03/2026</td>
                 <td th:text="${#temporals.format(inscricao.oferta.dataFim, 'dd/MM/yyyy')}">15/07/2026</td>
                 
-                <!-- Acessa a oferta, puxa o professor responsável e imprime o nome completo dele -->
                 <td th:text="${inscricao.oferta.professorResponsavel.nomeCompleto}">Nome do Professor</td>
                 
-                <!-- Imprime o status atual -->
                 <td>
                     <span class="status" th:text="${inscricao.status}">STATUS</span>
                 </td>
                 
-                <!-- Botões de ação visuais para atender a interface da estoria -->
                 <td>
+                    <a th:href="@{/aluno/documentacao/nova/{id}(id=${inscricao.id})}" class="btn-acao" style="background: #007bff;">Enviar Documentação</a>
+                    
                     <a href="#" class="btn-acao">Enviar Plano</a>
                     <a href="#" class="btn-acao">Enviar Relatório</a>
                 </td>
             </tr>
             
-            <!-- th:if: Se a lista de inscrições estiver vazia, exibe esta linha de aviso -->
             <tr th:if="${#lists.isEmpty(inscricoes)}">
                 <td colspan="7" style="text-align: center;">Você não está matriculado em nenhuma oferta no momento.</td>
             </tr>
