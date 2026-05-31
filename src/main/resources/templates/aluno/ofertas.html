@@ -51,7 +51,10 @@
                 </td>
                 
                 <td>
-                    <a th:href="@{/aluno/documentacao/nova/{id}(id=${inscricao.id})}" class="btn-acao" style="background: #007bff;">Enviar Documentação</a>
+                    <a th:if="${inscricao.status.name() == 'NAO_ENVIADO'}"
+                       th:href="@{/aluno/documentacao/nova/{id}(id=${inscricao.id})}" 
+                       class="btn-acao" 
+                       style="background: #007bff;">Enviar Documentação</a>
                     
                     <a href="#" class="btn-acao">Enviar Plano</a>
                     <a href="#" class="btn-acao">Enviar Relatório</a>
