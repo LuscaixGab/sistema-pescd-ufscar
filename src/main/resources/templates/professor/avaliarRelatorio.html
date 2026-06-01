@@ -74,7 +74,7 @@
             <p><strong>Semestre:</strong> <span th:text="${inscricao.oferta.semestre}">2026/1</span></p>
             
             <p style="margin-top: 15px;">
-                <a href="#" class="button-link btn-sm" target="_blank">Baixar/Visualizar Relatório (PDF)</a>
+                <a th:href="@{/professor/relatorios/download/{id}(id=${inscricao.id})}" class="button-link btn-sm" target="_blank">Baixar/Visualizar Relatório (PDF)</a>
             </p>
         </div>
 
