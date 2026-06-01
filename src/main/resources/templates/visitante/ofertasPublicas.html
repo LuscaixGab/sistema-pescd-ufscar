@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ofertas do Programa | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <style>
+        .page-shell {
+            max-width: 1400px !important; 
+            width: 95% !important;
+            margin: 0 auto !important; 
+        }
+
+        .page-card {
+            width: 100% !important;
+            max-width: none !important;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Bem-vindo Visitante!</p>
+                <h1>Ofertas de Disciplinas</h1>
+                <p>Confira abaixo as disciplinas ofertadas atualmente pelo programa.</p>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Oferta / Disciplina</th>
+                        <th>Semestre</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Professor Responsável</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="oferta : ${ofertas}">
+                        <td th:text="${oferta.nomeOferta}">Nome da Oferta</td>
+                        <td th:text="${oferta.semestre}">2026/1</td>
+                        <td th:text="${#temporals.format(oferta.dataInicio, 'dd/MM/yyyy')}">01/03/2026</td>
+                        <td th:text="${#temporals.format(oferta.dataFim, 'dd/MM/yyyy')}">15/07/2026</td>
+                        <td th:text="${oferta.professorResponsavel.nomeCompleto}">Nome do Professor</td>
+                    </tr>
+                    
+                    <tr th:if="${#lists.isEmpty(ofertas)}">
+                        <td colspan="5" style="text-align: center; padding: 20px;">
+                            Nenhuma oferta disponível no momento.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div>
+            <p></p>
+            <a class="button-link secondary" th:href="@{/login}">Fazer Login</a>
+        </div>
+
+    </section>
+</main>
+</body>
+</html>
