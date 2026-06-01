@@ -7,7 +7,6 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     
     <style>
-        
         .page-shell {
             max-width: 1400px !important; 
             width: 95% !important;
@@ -40,6 +39,12 @@
             white-space: nowrap !important;
             height: auto !important;
             line-height: 1.2 !important;
+        }
+
+        /* Classe para travar o botão visualmente e impedir o clique */
+        .disabled-btn {
+            pointer-events: none; /* Impede o clique */
+            cursor: default;
         }
     </style>
 </head>
@@ -83,15 +88,27 @@
                         
                         <td>
                             <div class="acoes-flex">
+                                
                                 <a th:if="${inscricao.status.name() == 'NAO_ENVIADO'}"
                                    th:href="@{/aluno/documentacao/nova/{id}(id=${inscricao.id})}" 
                                    class="button-link btn-sm">Enviar Documentação</a>
-                                
-                                <a href="#" class="button-link secondary btn-sm">Enviar Plano</a>
+                                <a th:unless="${inscricao.status.name() == 'NAO_ENVIADO'}"
+                                   class="button-link secondary btn-sm disabled-btn">Enviar Documentação</a>
+
+
+                                <a th:if="${inscricao.status.name() == 'NAO_ENVIADO'}"
+                                   th:href="@{/aluno/plano-trabalho/adicionar}" 
+                                   class="button-link btn-sm">Enviar Plano</a>
+                                <a th:unless="${inscricao.status.name() == 'NAO_ENVIADO'}"
+                                   class="button-link secondary btn-sm disabled-btn">Enviar Plano</a>
+
 
                                 <a th:if="${inscricao.status.name() == 'PLANO_APROVADO'}"
                                    th:href="@{/aluno/relatorio/novo/{id}(id=${inscricao.id})}" 
                                    class="button-link btn-sm">Enviar Relatório</a>
+                                <a th:unless="${inscricao.status.name() == 'PLANO_APROVADO'}"
+                                   class="button-link secondary btn-sm disabled-btn">Enviar Relatório</a>
+                                   
                             </div>
                         </td>
                     </tr>
