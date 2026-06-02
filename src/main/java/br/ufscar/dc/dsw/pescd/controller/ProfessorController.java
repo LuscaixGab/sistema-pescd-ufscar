@@ -40,6 +40,12 @@ public class ProfessorController {
         this.relatorioFinalRepository = relatorioFinalRepository;
     }
 
+    // Seleção de papel (professor supervisor ou professor responsável)
+    @GetMapping("/atuacao")
+    public String selectAtuacao(){
+        return "/professor/selectAtuacao";
+    }
+
     // Listar relatórios pendentes
     @GetMapping("/relatorios/pendentes")
     public String listarRelatoriosPendentes(Authentication authentication, Model model) {
