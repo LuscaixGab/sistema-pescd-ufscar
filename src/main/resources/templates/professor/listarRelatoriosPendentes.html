@@ -57,10 +57,11 @@
         
         <header class="page-header">
             <div>
-                <p class="page-kicker">Área do Professor</p>
+                <p class="page-kicker">Professor Supervisor</p>
                 <h1>Relatórios Pendentes</h1>
                 <p>Alunos que enviaram o relatório final de estágio e aguardam sua avaliação.</p>
             </div>
+            <a class="button-link secondary" th:href="@{/professor/atuacao}">Trocar papel</a>
         </header>
 
         <div th:if="${param.sucesso}" class="alert-success">
@@ -105,8 +106,6 @@
             </table>
         </div>
 
-        <p></p>
-        <a class="button-link secondary" th:href="@{/painel}">Voltar ao Painel</a>
 
     </section>
 </main>

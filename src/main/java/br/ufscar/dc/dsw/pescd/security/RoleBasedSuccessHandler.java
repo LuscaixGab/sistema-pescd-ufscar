@@ -16,9 +16,13 @@ public class RoleBasedSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
-        String targetUrl = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SECRETARIO"))
-                ? "/ofertas"
-                : "/painel";
+        String targetUrl = "/painel";
+
+        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SECRETARIO"))) {
+            targetUrl = "/ofertas";
+        } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))) {
+            targetUrl = "/professor/atuacao";
+        }
 
         response.sendRedirect(targetUrl);
     }
