@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${tituloPagina}">Usuário | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Administrador</p>
+                <h1 th:text="${tituloPagina}">Usuário</h1>
+                <p>Preencha os dados abaixo para cadastrar ou atualizar o acesso.</p>
+            </div>
+            <div class="actions" style="gap: 0.5rem;">
+                <a class="button-link secondary" th:href="@{/administrador/usuarios}">Voltar</a>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="button-link secondary" type="submit">Sair</button>
+                </form>
+            </div>
+        </header>
+
+        <div th:if="${erroGeral}" class="notice error" th:text="${erroGeral}"></div>
+
+        <form class="offer-form"
+              th:action="${formAction}"
+              th:object="${administradorDTO}"
+              method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="field-grid">
+                <div class="field">
+                    <label for="nomeCompleto">Nome completo *</label>
+                    <input id="nomeCompleto" type="text" th:field="*{nomeCompleto}" placeholder="Nome do usuário">
+                    <small th:if="${#fields.hasErrors('nomeCompleto')}" th:errors="*{nomeCompleto}" class="field-error"></small>
+                </div>
+
+                <div class="field">
+                    <label for="perfil">Perfil *</label>
+                    <select id="perfil" th:field="*{perfil}">
+                        <option value="">Selecione um perfil</option>
+                        <option th:each="perfilItem : ${perfis}" th:value="${perfilItem}" th:text="${perfilItem}"></option>
+                    </select>
+                    <small th:if="${#fields.hasErrors('perfil')}" th:errors="*{perfil}" class="field-error"></small>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="email">E-mail *</label>
+                <input id="email" type="email" th:field="*{email}" placeholder="usuario@exemplo.com">
+                <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="field-error"></small>
+            </div>
+
+            <div class="field">
+                <label for="nomeUsuario">Nome de usuário *</label>
+                <input id="nomeUsuario" type="text" th:field="*{nomeUsuario}" placeholder="login de acesso">
+                <small th:if="${#fields.hasErrors('nomeUsuario')}" th:errors="*{nomeUsuario}" class="field-error"></small>
+            </div>
+
+            <div class="field">
+                <label for="senha">Senha</label>
+                <input id="senha" type="password" th:field="*{senha}" placeholder="Digite uma nova senha">
+                <small th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" class="field-error"></small>
+                <small class="muted" th:if="${administradorDTO.id != null}">
+                    Deixe em branco para manter a senha atual.
+                </small>
+                <small class="muted" th:if="${administradorDTO.id == null}">
+                    Obrigatória no cadastro.
+                </small>
+            </div>
+
+            <div class="actions">
+                <button type="submit" th:text="${botaoTexto}">Salvar</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Administrador</p>
+                <h1>Gerenciamento de usuários</h1>
+                <p>Cadastre, edite e remova usuários do sistema conforme o perfil de acesso.</p>
+            </div>
+            <div class="actions" style="gap: 0.5rem;">
+                <a class="button-link" th:href="@{/administrador/usuarios/novo}">Novo usuário</a>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="button-link secondary" type="submit">Sair</button>
+                </form>
+            </div>
+        </header>
+
+        <div th:if="${mensagemSucesso}" class="notice success" th:text="${mensagemSucesso}"></div>
+        <div th:if="${erroGeral}" class="notice error" th:text="${erroGeral}"></div>
+
+        <div class="table-wrap" th:if="${#lists.isEmpty(usuarios)}">
+            <p class="empty-state">Nenhum usuário cadastrado ainda.</p>
+        </div>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(usuarios)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Usuário</th>
+                    <th>Perfil</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="usuario : ${usuarios}">
+                    <td th:text="${usuario.nomeCompleto}">Nome</td>
+                    <td th:text="${usuario.email}">email@exemplo.com</td>
+                    <td th:text="${usuario.nomeUsuario}">usuario</td>
+                    <td th:text="${usuario.perfil}">PERFIL</td>
+                    <td>
+                        <div class="actions" style="justify-content: flex-start; gap: 0.5rem;">
+                            <a class="button-link secondary btn-sm" th:href="@{/administrador/usuarios/{id}/editar(id=${usuario.id})}">Editar</a>
+                            <form th:if="${usuario.id != usuarioLogadoId}" th:action="@{/administrador/usuarios/{id}/excluir(id=${usuario.id})}" method="post" style="display: inline;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="button-link btn-sm" style="border: none;" onclick="return confirm('Excluir este usuário?');">Excluir</button>
+                            </form>
+                            <span th:if="${usuario.id == usuarioLogadoId}" class="button-link secondary btn-sm" style="pointer-events: none; opacity: 0.6;">Você</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
