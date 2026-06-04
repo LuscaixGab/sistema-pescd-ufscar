@@ -22,9 +22,7 @@ public class LoginController {
             @AuthenticationPrincipal UsuarioUserDetails usuarioLogado,
             Model model) {
         if (usuarioLogado != null) {
-            if (usuarioLogado.getUsuario().getPerfil() == br.ufscar.dc.dsw.pescd.model.Perfil.SECRETARIO) {
-                return "redirect:/ofertas";
-            }
+            // Se já estiver logado, não importa o perfil, manda direto pro painel
             return "redirect:/painel";
         }
 

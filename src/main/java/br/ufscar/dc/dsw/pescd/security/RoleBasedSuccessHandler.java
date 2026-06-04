@@ -19,7 +19,7 @@ public class RoleBasedSuccessHandler implements AuthenticationSuccessHandler {
         String targetUrl = "/painel";
 
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SECRETARIO"))) {
-            targetUrl = "/ofertas";
+            targetUrl = "/painel";
         } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_PROFESSOR"))) {
             targetUrl = "/professor/atuacao";
         }

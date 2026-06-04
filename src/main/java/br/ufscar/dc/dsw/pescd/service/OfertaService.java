@@ -49,7 +49,7 @@ public class OfertaService {
         Oferta oferta = new Oferta();
         oferta.setNomeOferta(StringUtils.hasText(ofertaForm.getNomeOferta())
                 ? ofertaForm.getNomeOferta().trim()
-                : "Oferta " + ofertaForm.getSemestre().trim());
+                : "Oferta " + ofertaForm.getSemestre().trim() + " - Prof. " + professorResponsavel.getNomeCompleto());
         oferta.setSemestre(ofertaForm.getSemestre().trim());
         oferta.setDataInicio(ofertaForm.getDataInicio());
         oferta.setDataFim(ofertaForm.getDataFim());
