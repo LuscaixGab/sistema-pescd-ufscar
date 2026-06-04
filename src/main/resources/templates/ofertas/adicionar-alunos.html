@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Alunos | PESCD</title>
+    <title>Gerenciar Alunos | PESCD</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-page">
@@ -12,7 +12,7 @@
         <header class="page-header">
             <div>
                 <p class="page-kicker">Secretaria</p>
-                <h1>Adicionar Alunos à Oferta</h1>
+                <h1>Gerenciar Alunos da Oferta</h1>
                 <p th:text="${'Disciplina: ' + oferta.nomeOferta + ' (' + oferta.semestre + ')'}">Detalhes da Oferta</p>
             </div>
             <a class="button-link secondary" th:href="@{/ofertas}">Voltar para Lista</a>
@@ -21,21 +21,71 @@
         <div th:if="${mensagemSucesso}" class="notice success" th:text="${mensagemSucesso}"></div>
         <div th:if="${erroGeral}" class="notice error" th:text="${erroGeral}"></div>
 
-        <form class="offer-form" th:action="@{/ofertas/{id}/alunos/upload(id=${oferta.id})}" method="post" enctype="multipart/form-data">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 1rem;">
 
-            <div class="field" style="margin-bottom: 2rem;">
-                <label for="file">Selecione o arquivo CSV dos alunos:</label>
-                <input type="file" id="file" name="file" accept=".csv" required style="padding-top: 0.7rem; background: var(--panel);">
-                <small style="color: var(--muted); margin-top: 0.5rem; display: block;">
-                    O cabeçalho do arquivo deve ser exatamente: <strong>RA, NOME_COMPLETO, EMAIL</strong>
-                </small>
+            <div>
+                <h2 style="font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Importar ou Cadastrar</h2>
+                
+                <form class="offer-form" th:action="@{/ofertas/{id}/alunos/upload(id=${oferta.id})}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                    <div class="field" style="margin-bottom: 1rem;">
+                        <label for="file">1. Importar arquivo CSV:</label>
+                        <input type="file" id="file" name="file" accept=".csv" required style="padding-top: 0.7rem; background: var(--panel);">
+                        <small style="color: var(--muted); margin-top: 0.5rem; display: block;">
+                            O cabeçalho deve ser exatamente: <strong>RA, NOME_COMPLETO, EMAIL</strong>
+                        </small>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" style="width: 100%;">Fazer Upload do CSV</button>
+                    </div>
+                </form>
+                
+                <div style="margin-top: 2.5rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em;">2. Cadastro Manual:</label>
+                    <p style="color: var(--muted); font-size: 0.85em; margin-bottom: 1rem;">Use esta opção caso o aluno ainda não possua uma conta registrada no sistema.</p>
+                    
+                    <a th:href="@{/aluno/novo(ofertaId=${oferta.id})}" class="button-link secondary" style="display: block; text-align: center; width: 100%; box-sizing: border-box;">
+                        + Cadastrar Novo Aluno Manualmente
+                    </a>
+                </div>
             </div>
 
-            <div class="actions">
-                <button type="submit">Fazer Upload e Inscrever Alunos</button>
+            <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 3rem;">
+                <h2 style="font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Lista Geral de Alunos</h2>
+                
+                <form th:action="@{/ofertas/{id}/alunos/sincronizar(id=${oferta.id})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    
+                    <div style="max-height: 350px; overflow-y: auto; background: var(--panel); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1);">
+                        
+                        <div th:each="aluno : ${todosAlunos}" style="display: flex; align-items: center; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            
+                            <input type="checkbox" name="alunosSelecionados" th:value="${aluno.id}" 
+                                   th:id="${'aluno-' + aluno.id}" 
+                                   th:checked="${alunosMatriculadosIds != null and alunosMatriculadosIds.contains(aluno.id)}" 
+                                   style="margin-right: 12px; transform: scale(1.2); cursor: pointer;">
+                                   
+                            <label th:for="${'aluno-' + aluno.id}" style="cursor: pointer; display: flex; flex-direction: column;">
+                                <span th:text="${aluno.nomeCompleto}" style="font-weight: 500;">Nome do Aluno</span>
+                                <span th:text="${aluno.nomeUsuario}" style="font-size: 0.85em; color: var(--muted);">RA</span>
+                            </label>
+                        </div>
+                        
+                        <div th:if="${#lists.isEmpty(todosAlunos)}" style="color: var(--muted); text-align: center; padding: 2rem 0;">
+                            Nenhum aluno cadastrado no sistema.
+                        </div>
+
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" style="width: 100%;">Salvar Matrículas da Lista</button>
+                    </div>
+                </form>
             </div>
-        </form>
+
+        </div>
     </section>
 </main>
 </body>
