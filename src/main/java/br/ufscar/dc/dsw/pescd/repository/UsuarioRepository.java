@@ -20,4 +20,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Optional<Usuario> findByNomeUsuarioOrEmail(String nomeUsuario, String email);
 
     List<Usuario> findAllByPerfil(Perfil perfil);
+
+    // Busca todos filtrando por perfil e ordenando por nome (pro checkbox)
+    List<Usuario> findByPerfilOrderByNomeCompletoAsc(Perfil perfil);
 }

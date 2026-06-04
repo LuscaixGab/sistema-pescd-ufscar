@@ -20,4 +20,7 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, UUID> {
     List<Inscricao> findByOfertaProfessorResponsavelAndStatus(Usuario professor, StatusInscricao status);
 
     long countByOferta(Oferta oferta);
+
+    // Busca as inscrições atuais daquela oferta
+    List<Inscricao> findByOferta(Oferta oferta);
 }

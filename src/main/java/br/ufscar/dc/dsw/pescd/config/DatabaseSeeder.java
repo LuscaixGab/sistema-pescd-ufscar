@@ -39,16 +39,32 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Cria os usuários base
+        // Cria os usuários base do sistema
         criarUsuarioSeNaoExistir("Administrador do Sistema", "admin@pescd.local", "admin", "admin123", Perfil.ADMINISTRADOR);
         criarUsuarioSeNaoExistir("Secretário do Sistema", "secretario@pescd.local", "secretario", "secretario123", Perfil.SECRETARIO);
         criarUsuarioSeNaoExistir("Professor Responsável", "professor@pescd.local", "professor", "professor123", Perfil.PROFESSOR);
         criarUsuarioSeNaoExistir("Aluno do Sistema", "aluno@pescd.local", "aluno", "aluno123", Perfil.ALUNO);
 
+        // Gera volume de alunos para testar a tela de gerenciamento
+        criarUsuarioSeNaoExistir("Ana Beatriz Lima", "ana@pescd.local", "ana.lima", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Carlos Eduardo Silva", "carlos@pescd.local", "carlos.silva", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Diego Alves", "diego@pescd.local", "diego.alves", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Fernanda Costa", "fernanda@pescd.local", "fernanda.costa", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Gabriel Santos", "gabriel@pescd.local", "gabriel.santos", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Julia Oliveira", "julia@pescd.local", "julia.oliveira", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Lucas Pereira", "lucas@pescd.local", "lucas.pereira", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Mariana Rodrigues", "mariana@pescd.local", "mariana.rodrigues", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Pedro Henrique Souza", "pedro@pescd.local", "pedro.souza", "aluno123", Perfil.ALUNO);
+        criarUsuarioSeNaoExistir("Rafael Ferreira", "rafael@pescd.local", "rafael.ferreira", "aluno123", Perfil.ALUNO);
+
         // Recupera as instâncias necessárias para os relacionamentos
         Usuario professor = usuarioRepository.findByNomeUsuario("professor").orElseThrow();
         Usuario secretario = usuarioRepository.findByNomeUsuario("secretario").orElseThrow();
-        Usuario aluno = usuarioRepository.findByNomeUsuario("aluno").orElseThrow();
+        Usuario alunoBase = usuarioRepository.findByNomeUsuario("aluno").orElseThrow();
+        
+        // Pega alguns dos alunos novos para testes de matrícula
+        Usuario ana = usuarioRepository.findByNomeUsuario("ana.lima").orElseThrow();
+        Usuario carlos = usuarioRepository.findByNomeUsuario("carlos.silva").orElseThrow();
 
         // Cria as Ofertas
         if (ofertaRepository.count() == 0) {
@@ -70,7 +86,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             embarcados.setUsuarioCriador(secretario);
             ofertaRepository.save(embarcados);
 
-            // NOVA OFERTA: Cenário da AL.04
             Oferta controle = new Oferta();
             controle.setNomeOferta("Sistemas de Controle 1");
             controle.setSemestre("2026/1");
@@ -82,17 +97,21 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             // Cria as Inscrições
             if (inscricaoRepository.count() == 0) {
-                Inscricao inscricaoWeb1 = new Inscricao(null, aluno, web1, StatusInscricao.NAO_ENVIADO);
-                inscricaoRepository.save(inscricaoWeb1);
+                
+                // Inscrições na Web 1
+                inscricaoRepository.save(new Inscricao(null, alunoBase, web1, StatusInscricao.NAO_ENVIADO));
 
-                Inscricao inscricaoEmbarcados = new Inscricao(null, aluno, embarcados, StatusInscricao.NAO_ENVIADO);
-                inscricaoRepository.save(inscricaoEmbarcados);
+                // Inscrições em Embarcados
+                inscricaoRepository.save(new Inscricao(null, alunoBase, embarcados, StatusInscricao.NAO_ENVIADO));
 
-                // Inscrição avançada com Plano já aprovado
-                Inscricao inscricaoControle = new Inscricao(null, aluno, controle, StatusInscricao.PLANO_APROVADO);
+                // Inscrições em Controle 1 (O aluno base tem o plano aprovado, Ana e Carlos só estão matriculados)
+                Inscricao inscricaoControle = new Inscricao(null, alunoBase, controle, StatusInscricao.PLANO_APROVADO);
                 inscricaoRepository.save(inscricaoControle);
                 
-                // Salva o Plano de Trabalho mockado
+                inscricaoRepository.save(new Inscricao(null, ana, controle, StatusInscricao.NAO_ENVIADO));
+                inscricaoRepository.save(new Inscricao(null, carlos, controle, StatusInscricao.NAO_ENVIADO));
+                
+                // Salva o Plano de Trabalho mockado para o aluno base
                 PlanoTrabalho planoControle = new PlanoTrabalho(
                         null,
                         "ENG104",

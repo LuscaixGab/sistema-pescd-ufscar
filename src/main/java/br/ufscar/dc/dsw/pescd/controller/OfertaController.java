@@ -1,7 +1,11 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
 import br.ufscar.dc.dsw.pescd.dto.OfertaForm;
+import br.ufscar.dc.dsw.pescd.model.Inscricao;
 import br.ufscar.dc.dsw.pescd.model.Oferta;
+import br.ufscar.dc.dsw.pescd.model.Perfil;
+import br.ufscar.dc.dsw.pescd.model.StatusInscricao;
+import br.ufscar.dc.dsw.pescd.model.Usuario;
 import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
 import br.ufscar.dc.dsw.pescd.service.OfertaService;
 import jakarta.validation.Valid;
@@ -13,6 +17,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+
+import br.ufscar.dc.dsw.pescd.repository.UsuarioRepository;
+import br.ufscar.dc.dsw.pescd.repository.InscricaoRepository;
 
 @Controller
 @RequestMapping("/ofertas")
@@ -20,9 +31,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class OfertaController {
 
     private final OfertaService ofertaService;
+    private final UsuarioRepository usuarioRepository;
+    private final InscricaoRepository inscricaoRepository;
 
-    public OfertaController(OfertaService ofertaService) {
+    public OfertaController(OfertaService ofertaService, UsuarioRepository usuarioRepository, InscricaoRepository inscricaoRepository) {
         this.ofertaService = ofertaService;
+        this.usuarioRepository = usuarioRepository;
+        this.inscricaoRepository = inscricaoRepository;
     }
 
     @GetMapping
@@ -79,13 +94,71 @@ public class OfertaController {
     @Autowired
     private br.ufscar.dc.dsw.pescd.repository.OfertaRepository ofertaRepository;
 
-    // S.02 - GET: Exibir tela de adicionar alunos
+    // Exibir tela de adicionar alunos
     @GetMapping("/{id}/alunos")
     public String exibirAdicionarAlunos(@PathVariable("id") java.util.UUID id, Model model) {
         Oferta oferta = ofertaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Oferta inválida."));
         model.addAttribute("oferta", oferta);
+
+        // Pega TODOS os alunos em ordem alfabética
+        List<Usuario> todosAlunos = usuarioRepository.findByPerfilOrderByNomeCompletoAsc(Perfil.ALUNO);
+        
+        // Pega quem já tá inscrito
+        List<Inscricao> inscricoesAtuais = inscricaoRepository.findByOferta(oferta);
+        
+        // Extrai só os IDs pra tela saber quem marcar com o "checked"
+        List<UUID> alunosMatriculadosIds = inscricoesAtuais.stream()
+                .map(inscricao -> inscricao.getAluno().getId())
+                .collect(Collectors.toList());
+
+        model.addAttribute("oferta", oferta);
+        model.addAttribute("todosAlunos", todosAlunos);
+        model.addAttribute("alunosMatriculadosIds", alunosMatriculadosIds);
+
         return "ofertas/adicionar-alunos";
+    }
+
+    @PostMapping("/{id}/alunos/sincronizar")
+    public String sincronizarAlunosLista(@PathVariable UUID id, 
+                                        @RequestParam(required = false) List<UUID> alunosSelecionados,
+                                        RedirectAttributes redirectAttributes) {
+        
+        Oferta oferta = ofertaRepository.findById(id).orElseThrow();
+        
+        // Se a lista vier nula (secretário desmarcou absolutamente todo mundo)
+        if (alunosSelecionados == null) {
+            alunosSelecionados = new ArrayList<>();
+        }
+
+        // Pega como o banco está agora
+        List<Inscricao> inscricoesAtuais = inscricaoRepository.findByOferta(oferta);
+        
+        // PASSO A: O que tá no banco e NÃO tá na tela -> O secretário desmarcou, então REMOVE
+        for (Inscricao inscricao : inscricoesAtuais) {
+            if (!alunosSelecionados.contains(inscricao.getAluno().getId())) {
+                inscricaoRepository.delete(inscricao);
+            }
+        }
+
+        // Cria uma lista rápida só com os IDs atuais pra facilitar o Passo B
+        List<UUID> idsAtuais = inscricoesAtuais.stream()
+                .map(i -> i.getAluno().getId())
+                .collect(Collectors.toList());
+
+        // PASSO B: O que tá na tela e NÃO tá no banco -> O secretário marcou alguém novo, então ADICIONA
+        for (UUID alunoId : alunosSelecionados) {
+            if (!idsAtuais.contains(alunoId)) {
+                Usuario aluno = usuarioRepository.findById(alunoId).orElseThrow();
+                
+                // Instancia com o construtor igual fizemos antes
+                Inscricao novaInscricao = new Inscricao(null, aluno, oferta, StatusInscricao.NAO_ENVIADO);
+                inscricaoRepository.save(novaInscricao);
+            }
+        }
+
+        redirectAttributes.addFlashAttribute("mensagemSucesso", "Matrículas atualizadas com sucesso!");
+        return "redirect:/ofertas/" + id + "/alunos"; 
     }
 
     // S.02 - POST: Processar o upload do CSV
