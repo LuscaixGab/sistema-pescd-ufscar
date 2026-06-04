@@ -2,45 +2,59 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastrar Novo Aluno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Novo Aluno | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
-    <h1>Adicionar Aluno Manualmente</h1>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Secretaria</p>
+                <h1>Cadastrar Novo Aluno</h1>
+                <p>Adicionar aluno manualmente ao sistema</p>
+            </div>
+            
+            <a th:if="${ofertaId != null}" th:href="@{/ofertas/{id}/alunos(id=${ofertaId})}" class="button-link secondary">Voltar para a Oferta</a>
+            <a th:if="${ofertaId == null}" th:href="@{/painel}" class="button-link secondary">Voltar para o Painel</a>
+        </header>
 
-    <div th:if="${erro}" style="color: red; margin-bottom: 10px;" th:text="${erro}"></div>
+        <div th:if="${erro}" class="notice error" th:text="${erro}"></div>
 
-    <form th:action="@{/aluno/novo}" th:object="${alunoDTO}" method="post">
-        
-        <input type="hidden" name="ofertaId" th:value="${ofertaId}" />
-        
-        <div style="margin-bottom: 15px;">
-            <label>Nome Completo *</label>
-            <input type="text" th:field="*{nomeCompleto}">
-            <div th:if="${#fields.hasErrors('nomeCompleto')}" th:errors="*{nomeCompleto}" style="color: red; font-size: 0.9em;"></div>
-        </div>
+        <form class="offer-form" th:action="@{/aluno/novo}" th:object="${alunoDTO}" method="post">
+            
+            <input type="hidden" name="ofertaId" th:value="${ofertaId}" />
+            
+            <div class="field" style="margin-bottom: 1.5rem;">
+                <label for="nomeCompleto">Nome Completo *</label>
+                <input type="text" id="nomeCompleto" th:field="*{nomeCompleto}" style="background: var(--panel);">
+                <div th:if="${#fields.hasErrors('nomeCompleto')}" th:errors="*{nomeCompleto}" style="color: #ff6b6b; font-size: 0.9em; margin-top: 0.5rem;"></div>
+            </div>
 
-        <div style="margin-bottom: 15px;">
-            <label>E-mail *</label>
-            <input type="email" th:field="*{email}">
-            <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red; font-size: 0.9em;"></div>
-        </div>
+            <div class="field" style="margin-bottom: 1.5rem;">
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" th:field="*{email}" style="background: var(--panel);">
+                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: #ff6b6b; font-size: 0.9em; margin-top: 0.5rem;"></div>
+            </div>
 
-        <div style="margin-bottom: 15px;">
-            <label>Nome de Usuário *</label>
-            <input type="text" th:field="*{nomeUsuario}">
-            <div th:if="${#fields.hasErrors('nomeUsuario')}" th:errors="*{nomeUsuario}" style="color: red; font-size: 0.9em;"></div>
-        </div>
+            <div class="field" style="margin-bottom: 1.5rem;">
+                <label for="nomeUsuario">Nome de Usuário *</label>
+                <input type="text" id="nomeUsuario" th:field="*{nomeUsuario}" style="background: var(--panel);">
+                <div th:if="${#fields.hasErrors('nomeUsuario')}" th:errors="*{nomeUsuario}" style="color: #ff6b6b; font-size: 0.9em; margin-top: 0.5rem;"></div>
+            </div>
 
-        <div style="margin-bottom: 15px;">
-            <label>Senha Provisória *</label>
-            <input type="password" th:field="*{senha}">
-            <div th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" style="color: red; font-size: 0.9em;"></div>
-        </div>
+            <div class="field" style="margin-bottom: 2rem;">
+                <label for="senha">Senha Provisória *</label>
+                <input type="password" id="senha" th:field="*{senha}" style="background: var(--panel);">
+                <div th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" style="color: #ff6b6b; font-size: 0.9em; margin-top: 0.5rem;"></div>
+            </div>
 
-        <button type="submit">Cadastrar Aluno</button>
-        
-        <a th:if="${ofertaId != null}" th:href="@{/ofertas/{id}/alunos(id=${ofertaId})}">Voltar para a Oferta</a>
-        <a th:if="${ofertaId == null}" th:href="@{/painel}">Voltar para o Painel</a>
-    </form>
+            <div class="actions">
+                <button type="submit">Cadastrar Aluno</button>
+            </div>
+        </form>
+    </section>
+</main>
 </body>
 </html>
