@@ -23,4 +23,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     // Busca todos filtrando por perfil e ordenando por nome (pro checkbox)
     List<Usuario> findByPerfilOrderByNomeCompletoAsc(Perfil perfil);
+  
+    long countByPerfil(Perfil perfil);
 }
