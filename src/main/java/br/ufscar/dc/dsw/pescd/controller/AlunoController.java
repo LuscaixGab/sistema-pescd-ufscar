@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import br.ufscar.dc.dsw.pescd.model.Perfil;
 import br.ufscar.dc.dsw.pescd.dto.AlunoCadastroDTO;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,6 +19,7 @@ import jakarta.validation.Valid;
 
 import java.security.Principal;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/aluno")
@@ -50,44 +53,49 @@ public class AlunoController {
     
     // Rota GET: Entrega o DTO vazio para a tela desenhar o formulário
     @GetMapping("/novo")
-    public String exibirFormularioNovoAluno(Model model) {
+    public String exibirFormularioNovoAluno(
+        @RequestParam(required = false) UUID ofertaId, // Recebe o ID da URL de forma opcional
+        Model model) {
+        
         model.addAttribute("alunoDTO", new AlunoCadastroDTO());
+        model.addAttribute("ofertaId", ofertaId);
+
         return "aluno/adicionarAluno";
     }
 
     // Rota POST: Recebe o DTO preenchido quando o secretário clica em "Salvar"
     @PostMapping("/novo")
-    public String salvarNovoAluno(@Valid @ModelAttribute("alunoDTO") AlunoCadastroDTO alunoDTO,
-                                  BindingResult result,
-                                  Model model) {
+    public String salvarNovoAluno(
+            @Valid @ModelAttribute("alunoDTO") AlunoCadastroDTO alunoDTO,
+            BindingResult result,
+            @RequestParam(required = false) UUID ofertaId,
+            Model model) {
         
-        // Se o secretário esqueceu algum campo, devolve para a tela mostrando os erros
         if (result.hasErrors()) {
+            model.addAttribute("ofertaId", ofertaId); 
             return "aluno/adicionarAluno";
         }
 
-        // Verifica se já existe um aluno com esse e-mail ou RA no banco
         if (usuarioRepository.findByEmail(alunoDTO.getEmail()).isPresent() || 
             usuarioRepository.findByNomeUsuario(alunoDTO.getNomeUsuario()).isPresent()) {
             model.addAttribute("erro", "Já existe um usuário cadastrado com este E-mail ou RA.");
+            model.addAttribute("ofertaId", ofertaId);
             return "aluno/adicionarAluno";
         }
 
-        // DTO validado com sucesso! Agora convertemos para a Entidade real:
         Usuario novoAluno = new Usuario();
         novoAluno.setNomeCompleto(alunoDTO.getNomeCompleto());
         novoAluno.setEmail(alunoDTO.getEmail());
         novoAluno.setNomeUsuario(alunoDTO.getNomeUsuario());
-        
-        // Criptografa a senha antes de jogar no banco
         novoAluno.setSenha(passwordEncoder.encode(alunoDTO.getSenha()));
-        
-        // Trava o perfil exclusivamente como ALUNO, garantindo a segurança
         novoAluno.setPerfil(Perfil.ALUNO);
 
         usuarioRepository.save(novoAluno);
 
-        // Volta para a tela anterior (ou painel) após o sucesso
+        if (ofertaId != null) {
+            return "redirect:/ofertas/" + ofertaId + "/alunos"; 
+        }
+
         return "redirect:/painel"; 
     }
 }

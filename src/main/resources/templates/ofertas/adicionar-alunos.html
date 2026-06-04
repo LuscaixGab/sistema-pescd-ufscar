@@ -36,6 +36,9 @@
                 <button type="submit">Fazer Upload e Inscrever Alunos</button>
             </div>
         </form>
+        <a th:href="@{/aluno/novo(ofertaId=${oferta.id})}" class="btn-secundario">
+            + Cadastrar Novo Aluno Manualmente
+        </a>
     </section>
 </main>
 </body>

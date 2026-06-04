@@ -7,36 +7,40 @@
 <body>
     <h1>Adicionar Aluno Manualmente</h1>
 
-    <div th:if="${erro}" style="color: red;" th:text="${erro}"></div>
+    <div th:if="${erro}" style="color: red; margin-bottom: 10px;" th:text="${erro}"></div>
 
     <form th:action="@{/aluno/novo}" th:object="${alunoDTO}" method="post">
         
-        <div>
+        <input type="hidden" name="ofertaId" th:value="${ofertaId}" />
+        
+        <div style="margin-bottom: 15px;">
             <label>Nome Completo *</label>
             <input type="text" th:field="*{nomeCompleto}">
-            <span th:if="${#fields.hasErrors('nomeCompleto')}" th:errors="*{nomeCompleto}" style="color: red;"></span>
+            <div th:if="${#fields.hasErrors('nomeCompleto')}" th:errors="*{nomeCompleto}" style="color: red; font-size: 0.9em;"></div>
         </div>
 
-        <div>
+        <div style="margin-bottom: 15px;">
             <label>E-mail *</label>
             <input type="email" th:field="*{email}">
-            <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red;"></span>
+            <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red; font-size: 0.9em;"></div>
         </div>
 
-        <div>
+        <div style="margin-bottom: 15px;">
             <label>Nome de Usuário *</label>
             <input type="text" th:field="*{nomeUsuario}">
-            <span th:if="${#fields.hasErrors('nomeUsuario')}" th:errors="*{nomeUsuario}" style="color: red;"></span>
+            <div th:if="${#fields.hasErrors('nomeUsuario')}" th:errors="*{nomeUsuario}" style="color: red; font-size: 0.9em;"></div>
         </div>
 
-        <div>
+        <div style="margin-bottom: 15px;">
             <label>Senha Provisória *</label>
             <input type="password" th:field="*{senha}">
-            <span th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" style="color: red;"></span>
+            <div th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" style="color: red; font-size: 0.9em;"></div>
         </div>
 
         <button type="submit">Cadastrar Aluno</button>
-        <a th:href="@{/painel}">Voltar</a>
+        
+        <a th:if="${ofertaId != null}" th:href="@{/ofertas/{id}/alunos(id=${ofertaId})}">Voltar para a Oferta</a>
+        <a th:if="${ofertaId == null}" th:href="@{/painel}">Voltar para o Painel</a>
     </form>
 </body>
 </html>
