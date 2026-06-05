@@ -121,4 +121,45 @@ public class PlanoTrabalhoService {
             throw new IllegalStateException("Não foi possível salvar o arquivo do plano.", exception);
         }
     }
+
+    public List<PlanoTrabalho> listarPlanosPendentes(Usuario professor) {
+        return planoTrabalhoRepository.findByProfessorSupervisorAndInscricaoStatus(professor, StatusInscricao.PLANO_ENVIADO);
+    }
+
+    public PlanoTrabalho buscarPlanoParaAvaliacao(UUID planoId, Usuario professor) {
+        PlanoTrabalho plano = planoTrabalhoRepository.findById(planoId)
+                .orElseThrow(() -> new IllegalArgumentException("Plano não encontrado."));
+
+        if (!plano.getProfessorSupervisor().getId().equals(professor.getId())) {
+            throw new IllegalArgumentException("Você não tem permissão para acessar este plano.");
+        }
+        return plano;
+    }
+
+    @Transactional
+    public void avaliarPlano(UUID planoId, String parecer, String acao, Usuario professor) {
+        if (parecer == null || parecer.trim().isEmpty()) {
+            throw new IllegalArgumentException("O parecer é obrigatório. Por favor, insira um comentário.");
+        }
+
+        PlanoTrabalho plano = buscarPlanoParaAvaliacao(planoId, professor);
+
+        if (plano.getInscricao().getStatus() != StatusInscricao.PLANO_ENVIADO) {
+            throw new IllegalArgumentException("Este plano não está pendente de avaliação.");
+        }
+
+        plano.setParecer(parecer.trim());
+        planoTrabalhoRepository.save(plano);
+
+        Inscricao inscricao = plano.getInscricao();
+        if ("aprovar".equalsIgnoreCase(acao)) {
+            inscricao.setStatus(StatusInscricao.PLANO_APROVADO);
+        } else if ("reprovar".equalsIgnoreCase(acao)) {
+            inscricao.setStatus(StatusInscricao.PLANO_REPROVADO);
+        } else {
+            throw new IllegalArgumentException("Ação de avaliação inválida.");
+        }
+
+        inscricaoRepository.save(inscricao);
+    }
 }

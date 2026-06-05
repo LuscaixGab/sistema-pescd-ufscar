@@ -14,4 +14,9 @@ public interface PlanoTrabalhoRepository extends JpaRepository<PlanoTrabalho, UU
     List<PlanoTrabalho> findAllByOrderByDataCriacaoDesc();
 
     Optional<PlanoTrabalho> findByInscricao(Inscricao inscricao);
+
+    List<PlanoTrabalho> findByProfessorSupervisorAndInscricaoStatus(
+            br.ufscar.dc.dsw.pescd.model.Usuario professor,
+            br.ufscar.dc.dsw.pescd.model.StatusInscricao status
+    );
 }
