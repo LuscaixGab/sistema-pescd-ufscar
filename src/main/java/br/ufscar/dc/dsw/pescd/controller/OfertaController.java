@@ -64,50 +64,45 @@ public class OfertaController {
     }
 
     private String calcularStatus(Oferta oferta, List<Inscricao> inscricoes) {
+        // 1. Se já possui data de encerramento registrada no banco, está oficialmente Concluída
+        if (oferta.getDataEncerramento() != null) {
+            return "Concluída";
+        }
+
         LocalDate hoje = LocalDate.now();
 
-        // 1. Caso a oferta ainda não tenha chegado à data de início
+        // 2. Se a data atual for anterior ao início
         if (hoje.isBefore(oferta.getDataInicio())) {
             return "Aguardando início";
         }
 
-        // 2. Se a data atual estiver dentro do intervalo planejado da oferta
-        if ((hoje.isAfter(oferta.getDataInicio()) || hoje.isEqual(oferta.getDataInicio())) &&
-                (hoje.isBefore(oferta.getDataFim()) || hoje.isEqual(oferta.getDataFim()))) {
-            return "Em andamento";
-        }
-
-        // 3. Se o prazo final (dataFim) já expirou, o status depende do progresso dos alunos:
+        // 3. Se a oferta não tem nenhum aluno matriculado, baseia-se apenas no calendário
         if (inscricoes.isEmpty()) {
-            return "Concluída";
+            return hoje.isAfter(oferta.getDataFim()) ? "Concluída" : "Em andamento";
         }
 
-        boolean todosConcluidos = true;
-        boolean temAtrasoGrave = false;
-
+        // 4. (RN-1): Todos os alunos já foram validados pelo professor?
+        boolean todosConcluidosPeloProfessor = true;
         for (Inscricao inscricao : inscricoes) {
-            StatusInscricao status = inscricao.getStatus();
-
-            if (status != StatusInscricao.CONCLUIDO && status != StatusInscricao.CONCLUIDO_PELO_RESPONSAVEL) {
-                todosConcluidos = false;
-
-                if (status == StatusInscricao.NAO_ENVIADO ||
-                        status == StatusInscricao.PLANO_ENVIADO ||
-                        status == StatusInscricao.PLANO_REPROVADO) {
-                    temAtrasoGrave = true;
-                }
+            if (inscricao.getStatus() != StatusInscricao.CONCLUIDO_PELO_RESPONSAVEL &&
+                    inscricao.getStatus() != StatusInscricao.CONCLUIDO) {
+                todosConcluidosPeloProfessor = false;
+                break;
             }
         }
 
-        if (todosConcluidos) {
-            return "Concluída";
+        // Se todos concluíram, o status MUDA imediatamente para aguardar o Secretário (mesmo que o semestre não tenha acabado)
+        if (todosConcluidosPeloProfessor) {
+            return "Aguardando encerramento do secretário";
         }
 
-        if (temAtrasoGrave) {
+        // 5. Se nem todos terminaram e o prazo final já passou
+        if (hoje.isAfter(oferta.getDataFim())) {
             return "Em atraso";
         }
 
-        return "Aguardando encerramento...";
+        // 6. Se ainda está dentro do prazo e os alunos estão trabalhando
+        return "Em andamento";
     }
 
     @GetMapping("/nova")
