@@ -273,7 +273,9 @@ public class OfertaController {
 
     // S.03 - GET: Acompanhar o andamento da oferta
     @GetMapping("/{id}/acompanhamento")
-    public String exibirAcompanhamentoOferta(@PathVariable("id") UUID id, Model model) {
+    public String exibirAcompanhamentoOferta(@PathVariable("id") UUID id,
+                                             @AuthenticationPrincipal UsuarioUserDetails usuarioLogado,
+                                             Model model) {
         Oferta oferta = ofertaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Oferta inválida."));
 
@@ -295,6 +297,7 @@ public class OfertaController {
         model.addAttribute("concluidos", concluidos);
         model.addAttribute("emAndamento", totalAlunos - concluidos - pendentesIniciais);
         model.addAttribute("pendentesIniciais", pendentesIniciais);
+        model.addAttribute("perfilUsuario", usuarioLogado.getUsuario().getPerfil().name());
 
         return "ofertas/acompanhamento";
     }
@@ -381,4 +384,3 @@ public class OfertaController {
         return "redirect:/ofertas";
     }
 }
-

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Acompanhamento de Supervisão | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Professor Supervisor</p>
+                <h1>Acompanhamento de Supervisão</h1>
+                <p>Visão geral dos alunos sob sua supervisão. Quando houver pendência, use a ação indicada para avaliar o plano ou o relatório.</p>
+            </div>
+            <a class="button-link secondary" th:href="@{/professor/atuacao}">Trocar papel</a>
+        </header>
+
+        <div th:if="${sucesso}" class="notice success" th:text="${sucesso}"></div>
+        <div th:if="${param.sucesso}" class="notice success">Avaliação registrada com sucesso.</div>
+        <div th:if="${erro}" class="notice error" th:text="${erro}"></div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Oferta</th>
+                    <th>Semestre</th>
+                    <th>Aluno</th>
+                    <th>Disciplina</th>
+                    <th>Status</th>
+                    <th>Ação pendente</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="aluno : ${alunos}">
+                    <td th:text="${aluno.nomeOferta}">Oferta</td>
+                    <td th:text="${aluno.semestre}">2026/1</td>
+                    <td th:text="${aluno.nomeAluno}">Aluno</td>
+                    <td th:text="${aluno.nomeDisciplina}">Disciplina</td>
+                    <td>
+                        <span class="status-pill" th:text="${aluno.status}">STATUS</span>
+                    </td>
+                    <td>
+                        <a class="button-link btn-sm"
+                           th:if="${aluno.podeAvaliarPlano}"
+                           th:href="@{/professor/planos/{id}/avaliar(id=${aluno.planoId})}">
+                            Avaliar plano
+                        </a>
+
+                        <a class="button-link btn-sm"
+                           th:if="${aluno.podeAvaliarRelatorio}"
+                           th:href="@{/professor/relatorios/avaliar/{id}(id=${aluno.inscricaoId})}">
+                            Avaliar relatório
+                        </a>
+
+                        <span class="hint"
+                              th:if="${!aluno.podeAvaliarPlano and !aluno.podeAvaliarRelatorio}">
+                            Sem pendência de avaliação
+                        </span>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(alunos)}">
+                    <td colspan="6" class="table-empty-cell">
+                        Nenhum aluno está sob sua supervisão no momento.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

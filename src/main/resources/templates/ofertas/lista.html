@@ -17,7 +17,8 @@
             </div>
             <div>
                 <a th:if="${perfilUsuario == 'SECRETARIO'}" class="button-link" th:href="@{/ofertas/nova}">Nova oferta</a>
-                <a class="button-link" th:href="@{../painel}">Voltar</a>
+                <a th:if="${perfilUsuario == 'PROFESSOR'}" class="button-link secondary" th:href="@{/professor-responsavel/painel}">Voltar ao painel</a>
+                <a th:if="${perfilUsuario != 'PROFESSOR'}" class="button-link secondary" th:href="@{/painel}">Voltar ao painel</a>
             </div>
         </header>
 
