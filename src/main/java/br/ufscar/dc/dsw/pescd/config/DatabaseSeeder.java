@@ -1,15 +1,7 @@
 package br.ufscar.dc.dsw.pescd.config;
 
-import br.ufscar.dc.dsw.pescd.model.Perfil;
-import br.ufscar.dc.dsw.pescd.model.Usuario;
-import br.ufscar.dc.dsw.pescd.model.Oferta;
-import br.ufscar.dc.dsw.pescd.model.Inscricao;
-import br.ufscar.dc.dsw.pescd.model.StatusInscricao;
-import br.ufscar.dc.dsw.pescd.model.PlanoTrabalho;
-import br.ufscar.dc.dsw.pescd.repository.UsuarioRepository;
-import br.ufscar.dc.dsw.pescd.repository.OfertaRepository;
-import br.ufscar.dc.dsw.pescd.repository.InscricaoRepository;
-import br.ufscar.dc.dsw.pescd.repository.PlanoTrabalhoRepository;
+import br.ufscar.dc.dsw.pescd.model.*;
+import br.ufscar.dc.dsw.pescd.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -24,17 +16,20 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final InscricaoRepository inscricaoRepository;
     private final PlanoTrabalhoRepository planoTrabalhoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ConfiguracaoRepository configuracaoRepository;
 
     public DatabaseSeeder(UsuarioRepository usuarioRepository, 
                           OfertaRepository ofertaRepository, 
                           InscricaoRepository inscricaoRepository,
                           PlanoTrabalhoRepository planoTrabalhoRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder,
+                          ConfiguracaoRepository configuracaoRepository) {
         this.usuarioRepository = usuarioRepository;
         this.ofertaRepository = ofertaRepository;
         this.inscricaoRepository = inscricaoRepository;
         this.planoTrabalhoRepository = planoTrabalhoRepository;
         this.passwordEncoder = passwordEncoder;
+        this.configuracaoRepository = configuracaoRepository;
     }
 
     @Override
@@ -124,6 +119,16 @@ public class DatabaseSeeder implements CommandLineRunner {
                 
                 planoControle.setParecer("Plano aprovado. O aluno demonstrou bom domínio das ferramentas de simulação (Scilab/Xcos) propostas para as aulas práticas de resposta ao degrau.");
                 planoTrabalhoRepository.save(planoControle);
+            }
+
+            // Cria as intruções de encerramento
+            if (configuracaoRepository.findById("INSTRUCOES_ENCERRAMENTO").isEmpty()) {
+                String textoInstrucoes = "Instruções para encerramento da oferta:\n" +
+                        "1. Certifique-se de realizar os lançamentos de notas no sistema acadêmico principal (SIGA).\n" +
+                        "2. Verifique se o indicador de frequência final e as notas estão consolidados.\n" +
+                        "3. Esta operação atribuirá os créditos de extensão aos alunos matriculados.";
+
+                configuracaoRepository.save(new Configuracao("INSTRUCOES_ENCERRAMENTO", textoInstrucoes));
             }
         }
     }
