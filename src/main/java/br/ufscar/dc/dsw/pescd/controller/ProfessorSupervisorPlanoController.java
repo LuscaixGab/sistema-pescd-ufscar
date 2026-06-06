@@ -31,9 +31,8 @@ public class ProfessorSupervisorPlanoController {
     }
 
     @GetMapping("/pendentes")
-    public String listarPendentes(Model model, @AuthenticationPrincipal UsuarioUserDetails usuarioLogado) {
-        model.addAttribute("planos", planoTrabalhoService.listarPlanosPendentes(usuarioLogado.getUsuario()));
-        return "professor-supervisor/listarPlanosPendentes";
+    public String listarPendentes() {
+        return "redirect:/professor/supervisao";
     }
 
     @GetMapping("/{id}/avaliar")
@@ -42,7 +41,7 @@ public class ProfessorSupervisorPlanoController {
             model.addAttribute("plano", planoTrabalhoService.buscarPlanoParaAvaliacao(id, usuarioLogado.getUsuario()));
             return "professor-supervisor/avaliarPlano";
         } catch (IllegalArgumentException e) {
-            return "redirect:/professor/planos/pendentes?erro=" + e.getMessage();
+            return "redirect:/professor/supervisao";
         }
     }
 
@@ -58,7 +57,7 @@ public class ProfessorSupervisorPlanoController {
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/professor/planos/pendentes";
+        return "redirect:/professor/supervisao";
     }
 
     @GetMapping("/download/{id}")
