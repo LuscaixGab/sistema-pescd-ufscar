@@ -45,6 +45,13 @@ public class Oferta {
     @JoinColumn(name = "usuario_criador_id", nullable = false, updatable = false)
     private Usuario usuarioCriador;
 
+    @Column(name = "data_encerramento")
+    private java.time.LocalDateTime dataEncerramento;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_encerramento_id")
+    private Usuario usuarioEncerramento;
+
     public Oferta(UUID id, String nomeOferta, String semestre, LocalDate dataInicio, LocalDate dataFim,
             Usuario professorResponsavel) {
         this.id = id;
@@ -127,5 +134,21 @@ public class Oferta {
 
     public void setUsuarioCriador(Usuario usuarioCriador) {
         this.usuarioCriador = usuarioCriador;
+    }
+
+    public java.time.LocalDateTime getDataEncerramento() {
+        return dataEncerramento;
+    }
+
+    public void setDataEncerramento(java.time.LocalDateTime dataEncerramento) {
+        this.dataEncerramento = dataEncerramento;
+    }
+
+    public Usuario getUsuarioEncerramento() {
+        return usuarioEncerramento;
+    }
+
+    public void setUsuarioEncerramento(Usuario usuarioEncerramento) {
+        this.usuarioEncerramento = usuarioEncerramento;
     }
 }

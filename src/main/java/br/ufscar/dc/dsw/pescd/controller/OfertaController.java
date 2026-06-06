@@ -1,11 +1,7 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
 import br.ufscar.dc.dsw.pescd.dto.OfertaForm;
-import br.ufscar.dc.dsw.pescd.model.Inscricao;
-import br.ufscar.dc.dsw.pescd.model.Oferta;
-import br.ufscar.dc.dsw.pescd.model.Perfil;
-import br.ufscar.dc.dsw.pescd.model.StatusInscricao;
-import br.ufscar.dc.dsw.pescd.model.Usuario;
+import br.ufscar.dc.dsw.pescd.model.*;
 import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
 import br.ufscar.dc.dsw.pescd.service.OfertaService;
 import jakarta.validation.Valid;
@@ -13,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -65,50 +64,45 @@ public class OfertaController {
     }
 
     private String calcularStatus(Oferta oferta, List<Inscricao> inscricoes) {
+        // 1. Se já possui data de encerramento registrada no banco, está oficialmente Concluída
+        if (oferta.getDataEncerramento() != null) {
+            return "Concluída";
+        }
+
         LocalDate hoje = LocalDate.now();
 
-        // 1. Caso a oferta ainda não tenha chegado à data de início
+        // 2. Se a data atual for anterior ao início
         if (hoje.isBefore(oferta.getDataInicio())) {
             return "Aguardando início";
         }
 
-        // 2. Se a data atual estiver dentro do intervalo planejado da oferta
-        if ((hoje.isAfter(oferta.getDataInicio()) || hoje.isEqual(oferta.getDataInicio())) &&
-                (hoje.isBefore(oferta.getDataFim()) || hoje.isEqual(oferta.getDataFim()))) {
-            return "Em andamento";
-        }
-
-        // 3. Se o prazo final (dataFim) já expirou, o status depende do progresso dos alunos:
+        // 3. Se a oferta não tem nenhum aluno matriculado, baseia-se apenas no calendário
         if (inscricoes.isEmpty()) {
-            return "Concluída";
+            return hoje.isAfter(oferta.getDataFim()) ? "Concluída" : "Em andamento";
         }
 
-        boolean todosConcluidos = true;
-        boolean temAtrasoGrave = false;
-
+        // 4. (RN-1): Todos os alunos já foram validados pelo professor?
+        boolean todosConcluidosPeloProfessor = true;
         for (Inscricao inscricao : inscricoes) {
-            StatusInscricao status = inscricao.getStatus();
-
-            if (status != StatusInscricao.CONCLUIDO && status != StatusInscricao.CONCLUIDO_PELO_RESPONSAVEL) {
-                todosConcluidos = false;
-
-                if (status == StatusInscricao.NAO_ENVIADO ||
-                        status == StatusInscricao.PLANO_ENVIADO ||
-                        status == StatusInscricao.PLANO_REPROVADO) {
-                    temAtrasoGrave = true;
-                }
+            if (inscricao.getStatus() != StatusInscricao.CONCLUIDO_PELO_RESPONSAVEL &&
+                    inscricao.getStatus() != StatusInscricao.CONCLUIDO) {
+                todosConcluidosPeloProfessor = false;
+                break;
             }
         }
 
-        if (todosConcluidos) {
-            return "Concluída";
+        // Se todos concluíram, o status MUDA imediatamente para aguardar o Secretário (mesmo que o semestre não tenha acabado)
+        if (todosConcluidosPeloProfessor) {
+            return "Aguardando encerramento do secretário";
         }
 
-        if (temAtrasoGrave) {
+        // 5. Se nem todos terminaram e o prazo final já passou
+        if (hoje.isAfter(oferta.getDataFim())) {
             return "Em atraso";
         }
 
-        return "Aguardando encerramento...";
+        // 6. Se ainda está dentro do prazo e os alunos estão trabalhando
+        return "Em andamento";
     }
 
     @GetMapping("/nova")
@@ -165,6 +159,10 @@ public class OfertaController {
     private br.ufscar.dc.dsw.pescd.repository.RelatorioFinalRepository relatorioFinalRepository;
     @Autowired
     private br.ufscar.dc.dsw.pescd.repository.LogStatusInscricaoRepository logStatusInscricaoRepository;
+    @Autowired
+    private br.ufscar.dc.dsw.pescd.repository.ConfiguracaoRepository configuracaoRepository;
+    @Autowired
+    private br.ufscar.dc.dsw.pescd.service.LogStatusService logStatusService;
 
     // Exibir tela de adicionar alunos
     @GetMapping("/{id}/alunos")
@@ -317,6 +315,64 @@ public class OfertaController {
         model.addAttribute("logs", logs);
 
         return "ofertas/aluno-detalhes";
+    }
+
+    // S.04: Fluxo de encerramento
+
+    // GET: Exibe a tela de confirmação lendo as instruções do banco
+    @GetMapping("/{id}/encerrar")
+    public String exibirConfirmacaoEncerramento(@PathVariable("id") UUID id, Model model) {
+        Oferta oferta = ofertaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Oferta inválida."));
+
+        List<Inscricao> inscricoes = inscricaoRepository.findByOferta(oferta);
+        String statusAtual = calcularStatus(oferta, inscricoes);
+
+        if (!"Aguardando encerramento do secretário".equals(statusAtual)) {
+            return "redirect:/ofertas?erro=A oferta não está no status adequado para encerramento.";
+        }
+
+        // Lê a instrução do banco de dados (Tabela Configuracao)
+        String instrucoesDoBanco = configuracaoRepository.findById("INSTRUCOES_ENCERRAMENTO")
+                .map(Configuracao::getValor)
+                .orElse("Instruções padrão do sistema.");
+
+        model.addAttribute("oferta", oferta);
+        model.addAttribute("instrucoes", instrucoesDoBanco);
+        return "ofertas/encerrar";
+    }
+
+    // POST: Finaliza a oferta e gera os logs
+    @Transactional
+    @PostMapping("/{id}/encerrar")
+    public String processarEncerramento(@PathVariable("id") UUID id,
+                                        @AuthenticationPrincipal UsuarioUserDetails usuarioLogado,
+                                        RedirectAttributes redirectAttributes) {
+        Oferta oferta = ofertaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Oferta inválida."));
+
+        List<Inscricao> inscricoes = inscricaoRepository.findByOferta(oferta);
+        String statusAtual = calcularStatus(oferta, inscricoes);
+
+        if (!"Aguardando encerramento do secretário".equals(statusAtual)) {
+            redirectAttributes.addFlashAttribute("erroGeral", "Operação não permitida no momento.");
+            return "redirect:/ofertas";
+        }
+
+        // 1. Marca a oferta como encerrada
+        oferta.setDataEncerramento(LocalDateTime.now());
+        oferta.setUsuarioEncerramento(usuarioLogado.getUsuario());
+        ofertaRepository.save(oferta);
+
+        // 2. Modifica todos os alunos para CONCLUÍDO e grava no histórico
+        for (Inscricao inscricao : inscricoes) {
+            inscricao.setStatus(StatusInscricao.CONCLUIDO);
+            inscricaoRepository.save(inscricao);
+            logStatusService.registrarLog(inscricao, StatusInscricao.CONCLUIDO, usuarioLogado.getUsuario());
+        }
+
+        redirectAttributes.addFlashAttribute("mensagemSucesso", "Oferta encerrada com sucesso!");
+        return "redirect:/ofertas";
     }
 }
 
