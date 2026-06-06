@@ -24,6 +24,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.nio.file.Path;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 @Controller
 @RequestMapping("/professor")
 public class ProfessorController {
@@ -31,13 +35,16 @@ public class ProfessorController {
     private final InscricaoRepository inscricaoRepository;
     private final UsuarioRepository usuarioRepository;
     private final RelatorioFinalRepository relatorioFinalRepository;
+    private final br.ufscar.dc.dsw.pescd.service.LogStatusService logStatusService;
 
     public ProfessorController(InscricaoRepository inscricaoRepository, 
                             UsuarioRepository usuarioRepository,
-                            RelatorioFinalRepository relatorioFinalRepository) {
+                            RelatorioFinalRepository relatorioFinalRepository,
+                               br.ufscar.dc.dsw.pescd.service.LogStatusService logStatusService) {
         this.inscricaoRepository = inscricaoRepository;
         this.usuarioRepository = usuarioRepository;
         this.relatorioFinalRepository = relatorioFinalRepository;
+        this.logStatusService = logStatusService;
     }
 
     // Seleção de papel (professor supervisor ou professor responsável)
@@ -78,7 +85,8 @@ public class ProfessorController {
     @PostMapping("/relatorios/avaliar/{id}")
     public String salvarAvaliacao(@PathVariable("id") UUID id, 
                                   @RequestParam("parecer") String parecer, 
-                                  @RequestParam("acao") String acao) {
+                                  @RequestParam("acao") String acao,
+                                  @AuthenticationPrincipal UsuarioUserDetails usuarioLogado) {
         
         Inscricao inscricao = inscricaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inscrição inválida"));
@@ -91,6 +99,8 @@ public class ProfessorController {
         }
         
         inscricaoRepository.save(inscricao);
+
+        logStatusService.registrarLog(inscricao, inscricao.getStatus(), usuarioLogado.getUsuario());
 
         // Volta para a lista de relatórios pendentes com sucesso
         return "redirect:/professor/relatorios/pendentes?sucesso";
