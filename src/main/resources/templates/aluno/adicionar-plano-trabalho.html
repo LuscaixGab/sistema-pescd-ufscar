@@ -66,7 +66,7 @@
             </div>
 
             <div class="field">
-                <label for="arquivoPlano">Arquivo do plano *</label>
+                <label for="arquivoPlano">Arquivo do plano * (Apenas PDF, máx 5MB)</label>
                 <input id="arquivoPlano" type="file" th:field="*{arquivoPlano}" accept=".pdf,application/pdf">
                 <small th:if="${#fields.hasErrors('arquivoPlano')}" th:errors="*{arquivoPlano}" class="field-error"></small>
             </div>

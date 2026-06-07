@@ -8,6 +8,7 @@ import br.ufscar.dc.dsw.pescd.model.StatusInscricao;
 import br.ufscar.dc.dsw.pescd.repository.InscricaoRepository;
 import br.ufscar.dc.dsw.pescd.repository.PlanoTrabalhoRepository;
 import br.ufscar.dc.dsw.pescd.repository.RelatorioFinalRepository;
+import br.ufscar.dc.dsw.pescd.util.UploadUtils;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -77,16 +78,10 @@ public class RelatorioFinalController {
 
         MultipartFile arquivo = dto.getArquivo();
 
-        // Validação de PDF
-        if (arquivo.isEmpty() || arquivo.getContentType() == null || !arquivo.getContentType().equals("application/pdf")) {
-            model.addAttribute("erro", "O arquivo deve ser um PDF válido.");
-            return recarregarTelaRelatorioComErro(inscricao, model, dto);
-        }
-
-        // Validação de tamanho (Máx 5MB)
-        long tamanhoMaximo = 5 * 1024 * 1024;
-        if (arquivo.getSize() > tamanhoMaximo) {
-            model.addAttribute("erro", "O arquivo excede o limite de 5MB.");
+        try {
+            UploadUtils.validarPdfObrigatorio(arquivo, "o relatório");
+        } catch (IllegalArgumentException e) {
+            result.rejectValue("arquivo", "arquivo.invalido", e.getMessage());
             return recarregarTelaRelatorioComErro(inscricao, model, dto);
         }
 
