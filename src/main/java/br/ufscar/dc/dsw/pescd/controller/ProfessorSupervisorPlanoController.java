@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
+import br.ufscar.dc.dsw.pescd.config.MessageHelper;
 import br.ufscar.dc.dsw.pescd.model.PlanoTrabalho;
 import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
 import br.ufscar.dc.dsw.pescd.service.PlanoTrabalhoService;
@@ -25,9 +26,12 @@ import java.util.UUID;
 public class ProfessorSupervisorPlanoController {
 
     private final PlanoTrabalhoService planoTrabalhoService;
+    private final MessageHelper messages;
 
-    public ProfessorSupervisorPlanoController(PlanoTrabalhoService planoTrabalhoService) {
+    public ProfessorSupervisorPlanoController(PlanoTrabalhoService planoTrabalhoService,
+                                             MessageHelper messages) {
         this.planoTrabalhoService = planoTrabalhoService;
+        this.messages = messages;
     }
 
     @GetMapping("/pendentes")
@@ -53,7 +57,7 @@ public class ProfessorSupervisorPlanoController {
                                      RedirectAttributes redirectAttributes) {
         try {
             planoTrabalhoService.avaliarPlano(id, parecer, acao, usuarioLogado.getUsuario());
-            redirectAttributes.addFlashAttribute("sucesso", "Plano avaliado com sucesso!");
+            redirectAttributes.addFlashAttribute("sucesso", messages.get("msg.plan.evaluated"));
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("erro", e.getMessage());
         }

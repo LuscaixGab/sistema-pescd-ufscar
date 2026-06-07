@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
+import br.ufscar.dc.dsw.pescd.config.MessageHelper;
 import br.ufscar.dc.dsw.pescd.dto.OfertaForm;
 import br.ufscar.dc.dsw.pescd.model.*;
 import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
@@ -34,11 +35,14 @@ public class OfertaController {
     private final OfertaService ofertaService;
     private final UsuarioRepository usuarioRepository;
     private final InscricaoRepository inscricaoRepository;
+    private final MessageHelper messages;
 
-    public OfertaController(OfertaService ofertaService, UsuarioRepository usuarioRepository, InscricaoRepository inscricaoRepository) {
+    public OfertaController(OfertaService ofertaService, UsuarioRepository usuarioRepository,
+                            InscricaoRepository inscricaoRepository, MessageHelper messages) {
         this.ofertaService = ofertaService;
         this.usuarioRepository = usuarioRepository;
         this.inscricaoRepository = inscricaoRepository;
+        this.messages = messages;
     }
 
     @GetMapping
@@ -136,7 +140,7 @@ public class OfertaController {
         try {
             Oferta oferta = ofertaService.criarOferta(ofertaForm, usuarioLogado.getUsuario());
             redirectAttributes.addFlashAttribute("mensagemSucesso",
-                    "Oferta \"" + oferta.getNomeOferta() + "\" criada com sucesso.");
+                    messages.get("msg.offer.created", oferta.getNomeOferta()));
             return "redirect:/ofertas";
         } catch (IllegalArgumentException exception) {
             model.addAttribute("erroGeral", exception.getMessage());
@@ -149,7 +153,7 @@ public class OfertaController {
         if (ofertaForm.getDataInicio() != null && ofertaForm.getDataFim() != null
                 && !ofertaForm.getDataFim().isAfter(ofertaForm.getDataInicio())) {
             bindingResult.rejectValue("dataFim", "dataFim.invalida",
-                    "A data de fim deve ser depois da data de início.");
+                    messages.get("validation.endDate.afterStart"));
         }
     }
 
@@ -233,7 +237,7 @@ public class OfertaController {
             }
         }
 
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Matrículas atualizadas com sucesso!");
+        redirectAttributes.addFlashAttribute("mensagemSucesso", messages.get("msg.enrollments.updated"));
         return "redirect:/ofertas/" + id + "/alunos"; 
     }
 
@@ -244,28 +248,28 @@ public class OfertaController {
                                          RedirectAttributes redirectAttributes) {
 
         if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("erroGeral", "Por favor, selecione um arquivo válido.");
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.file.invalid"));
             return "redirect:/ofertas/" + id + "/alunos";
         }
 
         // FIX RN-1: Validar se é realmente um CSV
         String filename = file.getOriginalFilename();
         if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
-            redirectAttributes.addFlashAttribute("erroGeral", "O arquivo deve ser obrigatoriamente do tipo .csv.");
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.file.csv"));
             return "redirect:/ofertas/" + id + "/alunos";
         }
 
         // FIX RN-2: Validar o limite de 5MB (5 * 1024 * 1024 bytes)
         if (file.getSize() > 5242880) {
-            redirectAttributes.addFlashAttribute("erroGeral", "O arquivo não pode ultrapassar o limite de 5MB.");
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.file.size"));
             return "redirect:/ofertas/" + id + "/alunos";
         }
 
         try {
             inscricaoService.processarAlunosCsv(id, file);
-            redirectAttributes.addFlashAttribute("mensagemSucesso", "Alunos cadastrados e inscritos com sucesso!");
+            redirectAttributes.addFlashAttribute("mensagemSucesso", messages.get("msg.students.imported"));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erroGeral", "Erro ao processar o arquivo: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.file.processing", e.getMessage()));
         }
 
         return "redirect:/ofertas/" + id + "/alunos";
@@ -364,7 +368,7 @@ public class OfertaController {
         String statusAtual = calcularStatus(oferta, inscricoes);
 
         if (!"Aguardando encerramento do secretário".equals(statusAtual)) {
-            redirectAttributes.addFlashAttribute("erroGeral", "Operação não permitida no momento.");
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.operation.notAllowed"));
             return "redirect:/ofertas";
         }
 
@@ -380,7 +384,7 @@ public class OfertaController {
             logStatusService.registrarLog(inscricao, StatusInscricao.CONCLUIDO, usuarioLogado.getUsuario());
         }
 
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Oferta encerrada com sucesso!");
+        redirectAttributes.addFlashAttribute("mensagemSucesso", messages.get("msg.offer.closed"));
         return "redirect:/ofertas";
     }
 }

@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
+import br.ufscar.dc.dsw.pescd.config.MessageHelper;
 import br.ufscar.dc.dsw.pescd.dto.AnaliseRelatorioResponsavelForm;
 import br.ufscar.dc.dsw.pescd.model.RelatorioFinal;
 import br.ufscar.dc.dsw.pescd.model.Usuario;
@@ -28,9 +29,12 @@ import java.util.UUID;
 @PreAuthorize("hasRole('PROFESSOR')")
 public class ProfessorResponsavelRelatorioController {
     private final AnaliseRelatorioResponsavelService analiseRelatorioResponsavelService;
+    private final MessageHelper messages;
 
-    public ProfessorResponsavelRelatorioController(AnaliseRelatorioResponsavelService analiseRelatorioResponsavelService) {
+    public ProfessorResponsavelRelatorioController(AnaliseRelatorioResponsavelService analiseRelatorioResponsavelService,
+                                                   MessageHelper messages) {
         this.analiseRelatorioResponsavelService = analiseRelatorioResponsavelService;
+        this.messages = messages;
     }
 
     @GetMapping
@@ -87,7 +91,7 @@ public class ProfessorResponsavelRelatorioController {
                 analiseRelatorioResponsavelForm,
                 usuarioLogado.getUsuario());
 
-        redirectAttributes.addFlashAttribute("sucesso", "Relatório final analisado com sucesso.");
+        redirectAttributes.addFlashAttribute("sucesso", messages.get("msg.report.analyzed"));
         return "redirect:/professor-responsavel/relatorios";
     }
 
