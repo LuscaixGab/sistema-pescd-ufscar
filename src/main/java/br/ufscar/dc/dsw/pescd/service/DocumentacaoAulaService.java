@@ -33,6 +33,10 @@ public class DocumentacaoAulaService {
     private final String UPLOAD_DIR = "uploads/documentacoes/";
     
     public void processarEnvio(DocumentacaoAulaDTO dto, Inscricao inscricao) throws IOException {
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
+
         MultipartFile arquivo = dto.getArquivo();
 
         UploadUtils.validarPdfObrigatorio(arquivo, "a documentação");

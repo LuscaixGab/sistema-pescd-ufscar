@@ -44,6 +44,9 @@ public class AnaliseRelatorioResponsavelService {
     public RelatorioFinal buscarParaAnalise(UUID inscricaoId, Usuario professorResponsavel){
         RelatorioFinal relatorioFinal = relatorioFinalRepository.findByInscricaoId(inscricaoId).orElseThrow(() -> new IllegalArgumentException("Relatório não encontrado"));
         validarProfessorResponsavel(relatorioFinal, professorResponsavel);
+        if (relatorioFinal.getInscricao().getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
         validarStatus(relatorioFinal);
         return relatorioFinal;
     }
@@ -57,6 +60,10 @@ public class AnaliseRelatorioResponsavelService {
     public void finalizarAnalise(UUID inscricaoId, AnaliseRelatorioResponsavelForm form, Usuario professorResponsavel){
         RelatorioFinal relatorioFinal = buscarParaAnalise(inscricaoId, professorResponsavel);
         Inscricao inscricao = relatorioFinal.getInscricao();
+
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
 
         relatorioFinal.setParecerResponsavel(form.getParecer());
         relatorioFinal.setFrequenciaFinal(form.getIndicadorFrequencia());

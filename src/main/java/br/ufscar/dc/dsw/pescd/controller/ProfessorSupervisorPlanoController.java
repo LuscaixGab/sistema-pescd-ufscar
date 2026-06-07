@@ -46,7 +46,11 @@ public class ProfessorSupervisorPlanoController {
     @GetMapping("/{id}/avaliar")
     public String exibirFormularioAvaliacao(@PathVariable UUID id, Model model, @AuthenticationPrincipal UsuarioUserDetails usuarioLogado) {
         try {
-            model.addAttribute("plano", planoTrabalhoService.buscarPlanoParaAvaliacao(id, usuarioLogado.getUsuario()));
+            PlanoTrabalho plano = planoTrabalhoService.buscarPlanoParaAvaliacao(id, usuarioLogado.getUsuario());
+            if (plano.getInscricao().getOferta().isConcluida()) {
+                return "redirect:/professor/supervisao";
+            }
+            model.addAttribute("plano", plano);
             return "professor-supervisor/avaliarPlano";
         } catch (IllegalArgumentException e) {
             return "redirect:/professor/supervisao";

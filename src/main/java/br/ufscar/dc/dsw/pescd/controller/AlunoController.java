@@ -83,6 +83,16 @@ public class AlunoController {
             BindingResult result,
             @RequestParam(required = false) UUID ofertaId,
             Model model) {
+        Oferta oferta = null;
+        if (ofertaId != null) {
+            oferta = ofertaRepository.findById(ofertaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Oferta não encontrada."));
+            if (oferta.isConcluida()) {
+                model.addAttribute("erro", messages.get("msg.operation.notAllowed"));
+                model.addAttribute("ofertaId", ofertaId);
+                return "aluno/adicionarAluno";
+            }
+        }
         
         if (result.hasErrors()) {
             model.addAttribute("ofertaId", ofertaId); 
@@ -107,11 +117,6 @@ public class AlunoController {
 
         // 2. Faz a Matrícula se o ID da oferta existir
         if (ofertaId != null) {
-            
-            // Acha a oferta pelo ID
-            Oferta oferta = ofertaRepository.findById(ofertaId)
-                    .orElseThrow(() -> new IllegalArgumentException("Oferta não encontrada."));
-
             // Cria a inscrição amarrando o aluno novo na oferta direto pelo construtor
             Inscricao novaInscricao = new Inscricao(null, novoAluno, oferta, StatusInscricao.NAO_ENVIADO);
 

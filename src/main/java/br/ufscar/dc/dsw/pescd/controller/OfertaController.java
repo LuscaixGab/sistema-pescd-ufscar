@@ -79,8 +79,12 @@ public class OfertaController {
 
     private String calcularStatus(Oferta oferta, List<Inscricao> inscricoes) {
         // 1. Se já possui data de encerramento registrada no banco, está oficialmente Concluída
-        if (oferta.getDataEncerramento() != null) {
+        if (oferta.isConcluida()) {
             return "Concluída";
+        }
+
+        if (oferta.getStatusOferta() == StatusOferta.AGUARDANDO_ENCERRAMENTO_SECRETARIO) {
+            return "Aguardando encerramento do secretário";
         }
 
         LocalDate hoje = LocalDate.now();
@@ -183,6 +187,9 @@ public class OfertaController {
     public String exibirAdicionarAlunos(@PathVariable("id") java.util.UUID id, Model model) {
         Oferta oferta = ofertaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Oferta inválida."));
+        if (oferta.isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
         model.addAttribute("oferta", oferta);
 
         // Pega TODOS os alunos em ordem alfabética
@@ -209,6 +216,10 @@ public class OfertaController {
                                         RedirectAttributes redirectAttributes) {
         
         Oferta oferta = ofertaRepository.findById(id).orElseThrow();
+        if (oferta.isConcluida()) {
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.operation.notAllowed"));
+            return "redirect:/ofertas/" + id + "/alunos";
+        }
         
         // Se a lista vier nula (secretário desmarcou absolutamente todo mundo)
         if (alunosSelecionados == null) {
@@ -253,6 +264,13 @@ public class OfertaController {
 
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.file.invalid"));
+            return "redirect:/ofertas/" + id + "/alunos";
+        }
+
+        Oferta oferta = ofertaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Oferta inválida."));
+        if (oferta.isConcluida()) {
+            redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.operation.notAllowed"));
             return "redirect:/ofertas/" + id + "/alunos";
         }
 
@@ -379,6 +397,7 @@ public class OfertaController {
 
         // 1. Marca a oferta como encerrada
         oferta.setDataEncerramento(LocalDateTime.now());
+        oferta.setStatusOferta(StatusOferta.CONCLUIDA);
         oferta.setUsuarioEncerramento(usuarioLogado.getUsuario());
         ofertaRepository.save(oferta);
 

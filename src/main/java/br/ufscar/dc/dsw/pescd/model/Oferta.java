@@ -180,4 +180,8 @@ public class Oferta {
     public void setDataEncerramentoResponsavel(LocalDateTime dataEncerramentoResponsavel) {
         this.dataEncerramentoResponsavel = dataEncerramentoResponsavel;
     }
+
+    public boolean isConcluida() {
+        return statusOferta == StatusOferta.CONCLUIDA || dataEncerramento != null;
+    }
 }

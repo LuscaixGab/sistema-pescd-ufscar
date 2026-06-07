@@ -49,6 +49,11 @@ public class DocumentacaoAulaController {
             return "redirect:/aluno/ofertas"; // TODO: Ajuste para a rota correta da tela inicial do aluno
         }
 
+        if (inscricao.getOferta().isConcluida()) {
+            redirectAttributes.addFlashAttribute("erro", messages.get("msg.operation.notAllowed"));
+            return "redirect:/aluno/ofertas";
+        }
+
         // Oferta "em andamento" (checando pelo período das datas)
         java.time.LocalDate hoje = java.time.LocalDate.now();
         java.time.LocalDate inicio = inscricao.getOferta().getDataInicio();

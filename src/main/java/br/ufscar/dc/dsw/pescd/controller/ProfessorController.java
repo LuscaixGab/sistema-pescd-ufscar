@@ -66,6 +66,10 @@ public class ProfessorController {
         Inscricao inscricao = buscarInscricaoDeSupervisor(id, usuarioLogado.getUsuario());
         RelatorioFinal relatorio = buscarRelatorio(inscricao);
 
+        if (inscricao.getOferta().isConcluida()) {
+            return "redirect:/professor/supervisao";
+        }
+
         model.addAttribute("inscricao", inscricao);
         model.addAttribute("relatorio", relatorio);
         return "professor-supervisor/avaliarRelatorio";
@@ -80,6 +84,10 @@ public class ProfessorController {
                                   @AuthenticationPrincipal UsuarioUserDetails usuarioLogado) {
         Inscricao inscricao = buscarInscricaoDeSupervisor(id, usuarioLogado.getUsuario());
         RelatorioFinal relatorio = buscarRelatorio(inscricao);
+
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
 
         if (parecer == null || parecer.trim().isEmpty()) {
             throw new IllegalArgumentException("O parecer é obrigatório.");

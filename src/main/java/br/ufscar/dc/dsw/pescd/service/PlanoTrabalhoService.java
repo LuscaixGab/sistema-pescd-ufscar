@@ -72,6 +72,10 @@ public class PlanoTrabalhoService {
             throw new IllegalArgumentException("Você não pode enviar plano para esta inscrição.");
         }
 
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
+
         if (inscricao.getStatus() != StatusInscricao.NAO_ENVIADO) {
             throw new IllegalArgumentException("Esta inscrição não está apta para envio de plano.");
         }
@@ -148,6 +152,10 @@ public class PlanoTrabalhoService {
         }
 
         PlanoTrabalho plano = buscarPlanoParaAvaliacao(planoId, professor);
+
+        if (plano.getInscricao().getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
 
         if (plano.getInscricao().getStatus() != StatusInscricao.PLANO_ENVIADO) {
             throw new IllegalArgumentException("Este plano não está pendente de avaliação.");

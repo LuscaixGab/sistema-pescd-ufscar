@@ -111,6 +111,10 @@ public class PlanoTrabalhoController {
             throw new IllegalArgumentException("Você não pode acessar esta inscrição.");
         }
 
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
+
         return inscricao;
     }
 }

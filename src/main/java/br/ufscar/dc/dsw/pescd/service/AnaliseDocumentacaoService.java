@@ -42,6 +42,9 @@ public class AnaliseDocumentacaoService {
                 .orElseThrow(() -> new IllegalArgumentException("Documentação não encontrada."));
 
         validarProfessorResponsavel(documentacao, professorResponsavel);
+        if (documentacao.getInscricao().getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
         validarStatusDocumentacaoEnviada(documentacao);
 
         return documentacao;
@@ -51,6 +54,10 @@ public class AnaliseDocumentacaoService {
     public void finalizarAnalise(UUID inscricaoId, AnaliseDocumentacaoForm form, Usuario professorResponsavel) {
         DocumentacaoAula documentacao = buscarParaAnalise(inscricaoId, professorResponsavel);
         Inscricao inscricao = documentacao.getInscricao();
+
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
 
         documentacao.setParecer(form.getParecer().trim());
         documentacao.setIndicadorFrequencia(form.getIndicadorFrequencia());

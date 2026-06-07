@@ -26,12 +26,17 @@ public class AdministradorService {
 
     @Transactional(readOnly = true)
     public List<Usuario> listarUsuarios() {
-        return usuarioRepository.findAll(Sort.by(Sort.Direction.ASC, "nomeCompleto"));
+        return usuarioRepository.findAll(Sort.by(Sort.Direction.ASC, "nomeCompleto"))
+                .stream()
+                .filter(usuario -> listarPerfis().contains(usuario.getPerfil()))
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public AdministradorDTO carregarFormulario(UUID id) {
-        return toDTO(buscarUsuario(id));
+        Usuario usuario = buscarUsuario(id);
+        validarPerfilAdministravel(usuario);
+        return toDTO(usuario);
     }
 
     @Transactional
@@ -46,6 +51,7 @@ public class AdministradorService {
     @Transactional
     public Usuario atualizarUsuario(UUID id, AdministradorDTO dto) {
         Usuario usuario = buscarUsuario(id);
+        validarPerfilAdministravel(usuario);
         validarFormulario(dto, id, false);
 
         if (usuario.getPerfil() == Perfil.ADMINISTRADOR
@@ -61,6 +67,7 @@ public class AdministradorService {
     @Transactional
     public void excluirUsuario(UUID id, UUID usuarioLogadoId) {
         Usuario usuario = buscarUsuario(id);
+        validarPerfilAdministravel(usuario);
 
         if (usuario.getId().equals(usuarioLogadoId)) {
             throw new IllegalArgumentException("Voce nao pode excluir o proprio usuario.");
@@ -76,7 +83,7 @@ public class AdministradorService {
 
     @Transactional(readOnly = true)
     public List<Perfil> listarPerfis() {
-        return List.of(Perfil.values());
+        return List.of(Perfil.ADMINISTRADOR, Perfil.SECRETARIO, Perfil.PROFESSOR);
     }
 
     private Usuario buscarUsuario(UUID id) {
@@ -84,7 +91,17 @@ public class AdministradorService {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario nao encontrado."));
     }
 
+    private void validarPerfilAdministravel(Usuario usuario) {
+        if (!listarPerfis().contains(usuario.getPerfil())) {
+            throw new IllegalArgumentException("Este perfil não é gerenciado pelo administrador.");
+        }
+    }
+
     private void validarFormulario(AdministradorDTO dto, UUID idAtual, boolean novoCadastro) {
+        if (!listarPerfis().contains(dto.getPerfil())) {
+            throw new IllegalArgumentException("Perfil inválido para cadastro administrativo.");
+        }
+
         validarUnicidade(dto, idAtual);
 
         if (novoCadastro && !StringUtils.hasText(dto.getSenha())) {

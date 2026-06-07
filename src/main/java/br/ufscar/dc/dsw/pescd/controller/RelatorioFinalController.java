@@ -55,6 +55,10 @@ public class RelatorioFinalController {
         Inscricao inscricao = inscricaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inscrição inválida."));
 
+        if (inscricao.getOferta().isConcluida()) {
+            return "redirect:/aluno/ofertas";
+        }
+
         // Só acessa a tela se o plano estiver aprovado
         if (inscricao.getStatus() != StatusInscricao.PLANO_APROVADO) {
             return "redirect:/aluno/ofertas";
@@ -78,6 +82,10 @@ public class RelatorioFinalController {
         
         Inscricao inscricao = inscricaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inscrição inválida."));
+
+        if (inscricao.getOferta().isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
 
         // Se houver erro de validação (ex: frequência menor que 0 ou maior que 100)
         if (result.hasErrors()) {

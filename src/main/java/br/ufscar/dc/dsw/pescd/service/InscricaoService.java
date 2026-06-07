@@ -40,6 +40,9 @@ public class InscricaoService {
     public void processarAlunosCsv(UUID ofertaId, MultipartFile file) throws Exception {
         Oferta oferta = ofertaRepository.findById(ofertaId)
                 .orElseThrow(() -> new IllegalArgumentException("Oferta não encontrada."));
+        if (oferta.isConcluida()) {
+            throw new IllegalArgumentException("Oferta concluída permite apenas leitura.");
+        }
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String linha;
