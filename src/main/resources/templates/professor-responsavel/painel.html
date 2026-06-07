@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Professor Responsável | PESCD</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<main class="page-shell">
+    <section class="page-card">
+        <header class="page-header">
+            <div>
+                <p class="page-kicker">Professor Responsável</p>
+                <h1>Painel do Responsável</h1>
+                <p>Acesse as ações relacionadas às ofertas sob sua responsabilidade.</p>
+            </div>
+            <a class="button-link secondary" th:href="@{/professor/atuacao}">Trocar papel</a>
+        </header>
+
+        <div class="actions">
+            <a class="button-link" th:href="@{/professor-responsavel/documentacoes}">
+                Analisar Documentações
+            </a>
+            <a class="button-link" th:href="@{/professor-responsavel/relatorios}">
+                Aprovar Relatórios
+            </a>
+            <a class="button-link" th:href="@{/professor-responsavel/ofertas}">
+                Encerrar Ofertas
+            </a>
+            <a class="button-link" th:href="@{/ofertas}">
+                Acompanhar Ofertas
+            </a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

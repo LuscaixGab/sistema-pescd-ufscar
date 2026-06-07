@@ -28,7 +28,8 @@
                 <h1 th:text="${oferta.nomeOferta}">Nome da Disciplina</h1>
                 <p th:text="${'Semestre: ' + oferta.semestre + ' | Prof. Responsável: ' + oferta.professorResponsavel.nomeCompleto}"></p>
             </div>
-            <a class="button-link secondary" th:href="@{/ofertas}">Voltar para Lista</a>
+            <a th:if="${perfilUsuario == 'PROFESSOR'}" class="button-link secondary" th:href="@{/professor-responsavel/painel}">Voltar ao painel</a>
+            <a th:if="${perfilUsuario != 'PROFESSOR'}" class="button-link secondary" th:href="@{/ofertas}">Voltar para lista</a>
         </header>
 
         <div class="dashboard-grid">
