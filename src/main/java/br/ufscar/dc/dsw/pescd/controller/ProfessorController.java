@@ -11,6 +11,8 @@ import br.ufscar.dc.dsw.pescd.repository.RelatorioFinalRepository;
 
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,8 @@ import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
 @Controller
 @RequestMapping("/professor")
 public class ProfessorController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProfessorController.class);
 
     private final InscricaoRepository inscricaoRepository;
     private final RelatorioFinalRepository relatorioFinalRepository;
@@ -125,7 +129,7 @@ public class ProfessorController {
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao baixar relatorio da inscricao {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -4,6 +4,8 @@ import br.ufscar.dc.dsw.pescd.config.MessageHelper;
 import br.ufscar.dc.dsw.pescd.model.PlanoTrabalho;
 import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
 import br.ufscar.dc.dsw.pescd.service.PlanoTrabalhoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +26,8 @@ import java.util.UUID;
 @RequestMapping("/professor/planos")
 @PreAuthorize("hasRole('PROFESSOR')")
 public class ProfessorSupervisorPlanoController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProfessorSupervisorPlanoController.class);
 
     private final PlanoTrabalhoService planoTrabalhoService;
     private final MessageHelper messages;
@@ -79,6 +83,7 @@ public class ProfessorSupervisorPlanoController {
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
+            logger.error("Erro ao baixar plano {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
     }

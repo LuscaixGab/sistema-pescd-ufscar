@@ -2,6 +2,8 @@ package br.ufscar.dc.dsw.pescd.controller;
 
 import br.ufscar.dc.dsw.pescd.util.UploadUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,12 +16,15 @@ import java.net.URI;
 @ControllerAdvice(annotations = Controller.class)
 public class UploadExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(UploadExceptionHandler.class);
+
     private static final String MENSAGEM_ARQUIVO_GRANDE =
             "O arquivo não pode ultrapassar o limite de " + UploadUtils.MAX_UPLOAD_LABEL + ".";
 
     // Captura uploads rejeitados pelo Spring antes de chegarem ao controller do formulário.
     @ExceptionHandler({MaxUploadSizeExceededException.class, MultipartException.class})
-    public String tratarErroDeUpload(HttpServletRequest request) {
+    public String tratarErroDeUpload(HttpServletRequest request, Exception exception) {
+        logger.warn("Upload rejeitado em {} {}", request.getMethod(), request.getRequestURI(), exception);
         RequestContextUtils.getOutputFlashMap(request).put("erro", MENSAGEM_ARQUIVO_GRANDE);
         RequestContextUtils.getOutputFlashMap(request).put("erroGeral", MENSAGEM_ARQUIVO_GRANDE);
 
