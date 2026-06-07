@@ -30,7 +30,7 @@
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
                     <div class="field" style="margin-bottom: 1rem;">
-                        <label for="file">1. Importar arquivo CSV:</label>
+                        <label for="file">1. Importar arquivo CSV (máx 5MB):</label>
                         <input type="file" id="file" name="file" accept=".csv" required style="padding-top: 0.7rem; background: var(--panel);">
                         <small style="color: var(--muted); margin-top: 0.5rem; display: block;">
                             O cabeçalho deve ser exatamente: <strong>RA, NOME_COMPLETO, EMAIL</strong>
