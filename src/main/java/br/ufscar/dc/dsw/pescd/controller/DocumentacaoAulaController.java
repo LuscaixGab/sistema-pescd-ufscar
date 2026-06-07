@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
+import br.ufscar.dc.dsw.pescd.config.MessageHelper;
 import br.ufscar.dc.dsw.pescd.dto.DocumentacaoAulaDTO;
 import br.ufscar.dc.dsw.pescd.model.Inscricao;
 
@@ -21,11 +22,15 @@ public class DocumentacaoAulaController {
 
     private final DocumentacaoAulaService documentacaoService;
     private final InscricaoRepository inscricaoRepository;
+    private final MessageHelper messages;
 
     // Injeção de dependência pelo construtor
-    public DocumentacaoAulaController(DocumentacaoAulaService documentacaoService, InscricaoRepository inscricaoRepository) {
+    public DocumentacaoAulaController(DocumentacaoAulaService documentacaoService,
+                                      InscricaoRepository inscricaoRepository,
+                                      MessageHelper messages) {
         this.documentacaoService = documentacaoService;
         this.inscricaoRepository = inscricaoRepository;
+        this.messages = messages;
     }
 
     // GET: Exibe o formulário
@@ -36,7 +41,7 @@ public class DocumentacaoAulaController {
         // Estar inscrito em uma oferta
         Inscricao inscricao = inscricaoRepository.findById(idInscricao).orElse(null);
         if (inscricao == null) {
-            redirectAttributes.addFlashAttribute("erro", "Inscrição não encontrada.");
+            redirectAttributes.addFlashAttribute("erro", messages.get("msg.docs.notFound"));
             return "redirect:/aluno/ofertas"; // TODO: Ajuste para a rota correta da tela inicial do aluno
         }
 
@@ -46,13 +51,13 @@ public class DocumentacaoAulaController {
         java.time.LocalDate fim = inscricao.getOferta().getDataFim();
 
         if (hoje.isBefore(inicio) || hoje.isAfter(fim)) {
-            redirectAttributes.addFlashAttribute("erro", "A oferta está fora do período letivo e não está em andamento.");
+            redirectAttributes.addFlashAttribute("erro", messages.get("msg.docs.offerClosed"));
             return "redirect:/aluno/ofertas";
         }
 
         // Status do aluno deve ser "não enviado" (ou selecionado para enviar)
         if (inscricao.getStatus() != StatusInscricao.NAO_ENVIADO) {
-            redirectAttributes.addFlashAttribute("erro", "Você já enviou a documentação ou não está na fase correta.");
+            redirectAttributes.addFlashAttribute("erro", messages.get("msg.docs.wrongPhase"));
             return "redirect:/aluno/ofertas";
         }
 
@@ -81,7 +86,7 @@ public class DocumentacaoAulaController {
         try {
             // Chama o Service
             documentacaoService.processarEnvio(dto, inscricao);
-            redirectAttributes.addFlashAttribute("sucesso", "Documentação enviada com sucesso!");
+            redirectAttributes.addFlashAttribute("sucesso", messages.get("msg.docs.sent"));
             return "redirect:/aluno/ofertas"; // Redireciona de volta pra lista
 
         } catch (IllegalArgumentException e) {
@@ -91,7 +96,7 @@ public class DocumentacaoAulaController {
             return "aluno/formularioDocumentacao";
         } catch (Exception e) {
             // Qualquer outro erro genérico ao salvar o arquivo
-            redirectAttributes.addFlashAttribute("erro", "Erro interno ao salvar o arquivo.");
+            redirectAttributes.addFlashAttribute("erro", messages.get("msg.upload.internal"));
             return "redirect:/aluno/ofertas";
         }
     }

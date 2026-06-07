@@ -1,5 +1,6 @@
 package br.ufscar.dc.dsw.pescd.controller;
 
+import br.ufscar.dc.dsw.pescd.config.MessageHelper;
 import br.ufscar.dc.dsw.pescd.dto.RelatorioFinalDTO;
 import br.ufscar.dc.dsw.pescd.model.Inscricao;
 import br.ufscar.dc.dsw.pescd.model.PlanoTrabalho;
@@ -31,15 +32,18 @@ public class RelatorioFinalController {
     private final PlanoTrabalhoRepository planoTrabalhoRepository;
     private final RelatorioFinalRepository relatorioFinalRepository;
     private final br.ufscar.dc.dsw.pescd.service.LogStatusService logStatusService;
+    private final MessageHelper messages;
 
     public RelatorioFinalController(InscricaoRepository inscricaoRepository, 
                                     PlanoTrabalhoRepository planoTrabalhoRepository, 
                                     RelatorioFinalRepository relatorioFinalRepository,
-                                    br.ufscar.dc.dsw.pescd.service.LogStatusService logStatusService) {
+                                    br.ufscar.dc.dsw.pescd.service.LogStatusService logStatusService,
+                                    MessageHelper messages) {
         this.inscricaoRepository = inscricaoRepository;
         this.planoTrabalhoRepository = planoTrabalhoRepository;
         this.relatorioFinalRepository = relatorioFinalRepository;
         this.logStatusService = logStatusService;
+        this.messages = messages;
     }
 
     @GetMapping("/novo/{id}")
@@ -117,7 +121,7 @@ public class RelatorioFinalController {
 
         } catch (IOException e) {
             e.printStackTrace(); // Isso vai imprimir o erro real no seu terminal para ajudar se falhar de novo
-            model.addAttribute("erro", "Erro ao processar o upload do arquivo. Tente novamente.");
+            model.addAttribute("erro", messages.get("msg.report.upload"));
             return recarregarTelaRelatorioComErro(inscricao, model, dto);
         }
 
