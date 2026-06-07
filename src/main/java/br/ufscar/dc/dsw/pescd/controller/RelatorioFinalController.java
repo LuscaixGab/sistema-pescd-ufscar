@@ -11,6 +11,8 @@ import br.ufscar.dc.dsw.pescd.repository.PlanoTrabalhoRepository;
 import br.ufscar.dc.dsw.pescd.repository.RelatorioFinalRepository;
 import br.ufscar.dc.dsw.pescd.util.UploadUtils;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,6 +29,8 @@ import java.nio.file.StandardCopyOption;
 @Controller
 @RequestMapping("/aluno/relatorio")
 public class RelatorioFinalController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RelatorioFinalController.class);
 
     private final InscricaoRepository inscricaoRepository;
     private final PlanoTrabalhoRepository planoTrabalhoRepository;
@@ -120,7 +124,7 @@ public class RelatorioFinalController {
             logStatusService.registrarLog(inscricao, StatusInscricao.RELATORIO_ENVIADO, inscricao.getAluno());
 
         } catch (IOException e) {
-            e.printStackTrace(); // Isso vai imprimir o erro real no seu terminal para ajudar se falhar de novo
+            logger.error("Erro ao processar upload do relatorio da inscricao {}", id, e);
             model.addAttribute("erro", messages.get("msg.report.upload"));
             return recarregarTelaRelatorioComErro(inscricao, model, dto);
         }

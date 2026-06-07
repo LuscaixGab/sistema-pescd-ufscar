@@ -6,6 +6,8 @@ import br.ufscar.dc.dsw.pescd.model.*;
 import br.ufscar.dc.dsw.pescd.security.UsuarioUserDetails;
 import br.ufscar.dc.dsw.pescd.service.OfertaService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,6 +33,8 @@ import br.ufscar.dc.dsw.pescd.repository.InscricaoRepository;
 @Controller
 @RequestMapping("/ofertas")
 public class OfertaController {
+
+    private static final Logger logger = LoggerFactory.getLogger(OfertaController.class);
 
     private final OfertaService ofertaService;
     private final UsuarioRepository usuarioRepository;
@@ -269,6 +273,7 @@ public class OfertaController {
             inscricaoService.processarAlunosCsv(id, file);
             redirectAttributes.addFlashAttribute("mensagemSucesso", messages.get("msg.students.imported"));
         } catch (Exception e) {
+            logger.error("Erro ao processar CSV de alunos para oferta {}", id, e);
             redirectAttributes.addFlashAttribute("erroGeral", messages.get("msg.file.processing", e.getMessage()));
         }
 

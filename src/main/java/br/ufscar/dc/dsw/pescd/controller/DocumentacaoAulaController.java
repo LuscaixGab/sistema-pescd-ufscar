@@ -8,6 +8,8 @@ import br.ufscar.dc.dsw.pescd.model.StatusInscricao;
 import br.ufscar.dc.dsw.pescd.repository.InscricaoRepository;
 import br.ufscar.dc.dsw.pescd.service.DocumentacaoAulaService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +21,8 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/aluno/documentacao")
 public class DocumentacaoAulaController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DocumentacaoAulaController.class);
 
     private final DocumentacaoAulaService documentacaoService;
     private final InscricaoRepository inscricaoRepository;
@@ -96,6 +100,7 @@ public class DocumentacaoAulaController {
             return "aluno/formularioDocumentacao";
         } catch (Exception e) {
             // Qualquer outro erro genérico ao salvar o arquivo
+            logger.error("Erro interno ao salvar documentacao da inscricao {}", idInscricao, e);
             redirectAttributes.addFlashAttribute("erro", messages.get("msg.upload.internal"));
             return "redirect:/aluno/ofertas";
         }
